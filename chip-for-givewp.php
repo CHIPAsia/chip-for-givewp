@@ -36,6 +36,7 @@ class ChipGiveWP {
 
   public function define() {
     define( 'GWP_CHIP_FILE', __FILE__ );
+    define( 'GWP_BASENAME', plugin_basename(GWP_CHIP_FILE));
   }
 
   public function includes() {
@@ -54,6 +55,7 @@ class ChipGiveWP {
   }
 
   public function add_filters() {
+    add_filter( 'plugin_action_links_' . GWP_BASENAME, array( $this, 'setting_link' ) );
     add_filter( 'give_payment_gateways', array( $this, 'register_payment_method' ) );
     add_filter( 'give_get_sections_gateways', array( $this, 'register_payment_gateway_sections' ) );
     add_filter( 'give_enabled_payment_gateways', array( $this, 'filter_gateway' ), 10, 2 );
@@ -105,6 +107,16 @@ class ChipGiveWP {
     ) {
       give_default_cc_address_fields( $form_id );
     }
+  }
+
+  public function setting_link($links) {
+    $new_links = array(
+      'settings' => sprintf(
+        '<a href="%1$s">%2$s</a>', admin_url('edit.php?post_type=give_forms&page=give-settings&tab=gateways&section=chip-settings'), esc_html__('Settings', 'chip-for-givewp')
+      )
+    );
+
+    return array_merge($new_links, $links);
   }
 }
 
