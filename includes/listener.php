@@ -66,8 +66,13 @@ class ChipGiveWPListener {
     $payment_id = Give()->session->get( 'chip_id' );
     $session_donation_id = Give()->session->get( 'donation_id' );
 
-    Give()->session->set( 'chip_id', false );
-    Give()->session->set( 'donation_id', false );
+    if ( $payment_id ) {
+      Give()->session->set( 'chip_id', false );
+    }
+
+    if ( $session_donation_id ) {
+      Give()->session->set( 'donation_id', false );
+    }
 
     if ( !empty($session_donation_id) && $donation_id != $session_donation_id) {
       give_die('Session donation not match with donation id!');
