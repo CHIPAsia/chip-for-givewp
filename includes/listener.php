@@ -4,8 +4,11 @@ class ChipGiveWPListener {
 
   private static $_instance;
 
-  const QUERY_VAR = 'chip-for-give-query-var';
-  const LISTENER_PASSPHRASE = 'chip-for-givewp-webhook';
+  const CALLBACK_KEY = 'chip-for-givewp-callback';
+  const CALLBACK_PASSPHRASE = 'chip-for-givewp-webhook';
+
+  const REDIRECT_KEY = 'chip-for-givewp-redirect';
+  const REDIRECT_PASSPHRASE = 'chip-for-givewp-redirect';
 
   public static function get_instance() {
     if ( self::$_instance == null ) {
@@ -17,40 +20,62 @@ class ChipGiveWPListener {
 
   public function __construct()
   {
-    add_action( 'init', array( $this, 'handle_return' ) );
+    add_action( 'init', array( $this, 'handle_callback' ) );
+    add_action( 'init', array( $this, 'handle_redirect' ) );
   }
 
-  public function get_url( $params ) {
+  public function get_callback_url( $params ) {
     if (!is_array($params)) {
       $params = array( 'donation_id' => $params );
     }
 
-    $passphrase = get_option(self::LISTENER_PASSPHRASE, false);
+    $passphrase = get_option(self::CALLBACK_PASSPHRASE, false);
     if (!$passphrase) {
         $passphrase = md5(site_url() . time());
-        update_option(self::LISTENER_PASSPHRASE, $passphrase);
+        update_option(self::CALLBACK_PASSPHRASE, $passphrase);
     }
 
-    $params[self::QUERY_VAR] = $passphrase;
+    $params[self::CALLBACK_KEY] = $passphrase;
 
     return add_query_arg($params, site_url('/'));
   }
 
-  public function handle_return() {
-    if (!isset($_GET[self::QUERY_VAR])) {
+  public function get_redirect_url( $params ) {
+    $params[self::REDIRECT_KEY] = self::REDIRECT_PASSPHRASE;
+    return add_query_arg($params, site_url('/') );
+  }
+
+  public function handle_redirect() {
+    if (!isset($_GET[self::REDIRECT_KEY])) {
       return;
     }
 
-    $passphrase = get_option(self::LISTENER_PASSPHRASE, false);
+    if ($_GET[self::REDIRECT_KEY] != self::REDIRECT_PASSPHRASE) {
+      return;
+    }
+
+    $this->handle_processing();
+  }
+
+  public function handle_callback() {
+    if (!isset($_GET[self::CALLBACK_KEY])) {
+      return;
+    }
+
+    $passphrase = get_option(self::CALLBACK_PASSPHRASE, false);
     if (!$passphrase) {
       return;
     }
-  
-    if ($_GET[self::QUERY_VAR] != $passphrase) {
+
+    if ($_GET[self::CALLBACK_KEY] != $passphrase) {
       return;
     }
-  
-    if (!isset($_GET['donation_id'])) {
+
+    $this->handle_processing();
+  }
+
+  private function handle_processing() {
+    if ( !isset( $_GET['donation_id'] ) ) {
       status_header(403);
       exit;
     }
@@ -75,7 +100,7 @@ class ChipGiveWPListener {
     }
 
     if ( !empty($session_donation_id) && $donation_id != $session_donation_id) {
-      give_die('Session donation not match with donation id!');
+      give_die( __('Session donation not match with donation id!', 'chip-for-givewp') );
     }
 
     if ( empty($payment_id) && isset($_SERVER['HTTP_X_SIGNATURE']) ) {
@@ -101,7 +126,8 @@ class ChipGiveWPListener {
 
       if (openssl_verify( $content,  base64_decode($_SERVER['HTTP_X_SIGNATURE']), $public_key, 'sha256WithRSAEncryption' ) != 1) {
         $message = __('Success callback failed to be processed due to failure in verification.', 'chip-for-woocommerce');
-        give_die($message, 'Failed verification', 403);
+        // logging here
+        give_die($message, __('Failed verification', 'chip-for-givewp'), 403);
       }
 
       $payment    = json_decode($content, true);

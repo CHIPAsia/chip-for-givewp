@@ -163,9 +163,9 @@ class ChipGiveWPPurchase {
     $listener = ChipGiveWPListener::get_instance();
 
     $params = array(
-      'success_callback' => $listener->get_url( array('donation_id' => $donation_id, 'status' => 'paid') ),
-      'success_redirect' => $listener->get_url( array('donation_id' => $donation_id, 'nonce' => $payment_data['gateway_nonce']) ),
-      'failure_redirect' => $listener->get_url( array('donation_id' => $donation_id, 'status' => 'error') ),
+      'success_callback' => $listener->get_callback_url( array('donation_id' => $donation_id, 'status' => 'paid') ),
+      'success_redirect' => $listener->get_redirect_url( array('donation_id' => $donation_id, 'nonce' => $payment_data['gateway_nonce']) ),
+      'failure_redirect' => $listener->get_redirect_url( array('donation_id' => $donation_id, 'status' => 'error') ),
       'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
       'reference'        => $payment_data['purchase_key'],
       'platform'         => 'givewp',
