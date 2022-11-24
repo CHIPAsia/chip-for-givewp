@@ -7,13 +7,13 @@
 // This is CHIP API URL Endpoint as per documented in: https://developer.chip-in.asia/api
 define("GIVE_CHIP_ROOT_URL", "https://gate.chip-in.asia");
 
-class GiveChipAPI
+class ChipGiveWPAPI
 {
   private static $_instance;
 
   public static function get_instance($secret_key, $brand_id) {
     if ( self::$_instance == null ) {
-      self::$_instance = new GiveChipAPI($secret_key, $brand_id);
+      self::$_instance = new self($secret_key, $brand_id);
     }
 
     return self::$_instance;
