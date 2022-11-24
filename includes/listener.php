@@ -78,7 +78,7 @@ class ChipGiveWPListener {
       give_die('Session donation not match with donation id!');
     }
 
-    if ( !empty($payment_id) && isset($_SERVER['HTTP_X_SIGNATURE']) ) {
+    if ( empty($payment_id) && isset($_SERVER['HTTP_X_SIGNATURE']) ) {
       $form_id = give_get_payment_form_id( $donation_id );
       $customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
       

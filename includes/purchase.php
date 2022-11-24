@@ -161,8 +161,7 @@ class ChipGiveWPPurchase {
     $billing_fields    = ChipGiveWPHelper::get_fields($form_id, 'chip-enable-billing-fields', $prefix );
 
     $listener = ChipGiveWPListener::get_instance();
-    
-    // give_get_success_page_uri()
+
     $params = array(
       'success_callback' => $listener->get_url( array('donation_id' => $donation_id, 'status' => 'paid') ),
       'success_redirect' => $listener->get_url( array('donation_id' => $donation_id, 'nonce' => $payment_data['gateway_nonce']) ),
