@@ -187,8 +187,18 @@ class ChipGiveWPListener {
 
     if ( !give_is_payment_complete( $donation_id ) ) {
       if ($payment['status'] == 'paid') {
+
         ChipGiveWPHelper::log( $donation_id, LogType::INFO, __('Status updated to publish', 'chip-for-givewp') );
-        give_update_payment_status( $donation_id );
+
+        $give_payment = new Give_Payment( $donation_id );
+
+        if ( $give_payment && $give_payment->ID > 0 ) {
+
+          $give_payment->status         = 'publish';
+          $give_payment->transaction_id = $payment['id'];
+          $give_payment->save();
+
+        }
       }
     }
 
