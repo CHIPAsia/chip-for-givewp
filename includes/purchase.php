@@ -1,5 +1,7 @@
 <?php
 
+use Give\Log\ValueObjects\LogType;
+
 class ChipGiveWPPurchase {
 
   private static $_instance;
@@ -71,53 +73,41 @@ class ChipGiveWPPurchase {
   private function get_formatted_content( $content, $form_id, $wpautop = false ) {
 
     $p_content = give_do_email_tags($content, ['form_id' => $form_id]);
-  
+
     return $wpautop ? wpautop( do_shortcode( $p_content ) ) : $p_content;
   }
-  
+
   public function create( $payment_data ) {
 
     if ( 'chip' != $payment_data['post_data']['give-gateway'] ) {
       return;
     }
-   
+
     give_clear_errors();
 
     if ( give_get_errors() ) {
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
-  
+
     $form_id         = intval( $payment_data['post_data']['give-form-id'] );
     $price_id        = ! empty( $payment_data['post_data']['give-price-id'] ) ? $payment_data['post_data']['give-price-id'] : 0;
     $donation_amount = ! empty( $payment_data['price'] ) ? $payment_data['price'] : 0;
     $currency        = give_get_currency( $form_id, $payment_data );
 
     if ( $donation_amount < 1 ) {
-      give_record_gateway_error(
-        __( 'Chip Amount Error', 'chip-for-givewp' ),
-        sprintf(
-        /* translators: %s Exception error message. */
-          __( 'Amount to be paid is less than 1. The amount to be paid is %s.', 'chip-for-give' ),
-          $donation_amount
-        )
-      );
+
+      ChipGiveWPHelper::log( $form_id, LogType::ERROR, sprintf( __( 'Amount to be paid is less than 1. The amount to be paid is %s.', 'chip-for-givewp' ), $donation_amount ) );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
 
     if ( $currency != 'MYR' ) {
-      give_record_gateway_error(
-        __( 'Chip Currency Error', 'chip-for-givewp' ),
-        sprintf(
-        /* translators: %s Exception error message. */
-          __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-give' ),
-          $currency
-        )
-      );
+
+      ChipGiveWPHelper::log( $form_id, LogType::ERROR, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ) );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
-  
+
     $donation_data = array(
       'price'           => $donation_amount,
       'give_form_title' => $payment_data['post_data']['give-form-title'],
@@ -135,13 +125,8 @@ class ChipGiveWPPurchase {
     $donation_id = give_insert_payment( $donation_data );
 
     if ( ! $donation_id ) {
-      give_record_gateway_error(
-        __( 'Chip Error', 'chip-for-givewp' ),
-        sprintf(
-        /* translators: %s Exception error message. */
-          __( 'Unable to create a pending donation with Give.', 'chip-for-give' )
-        )
-      );
+
+      ChipGiveWPHelper::log( $form_id, LogType::ERROR, __( 'Unable to create a pending donation with Give', 'chip-for-givewp' ) );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
@@ -200,14 +185,14 @@ class ChipGiveWPPurchase {
     $payment = $chip->create_payment($params);
 
     if (!array_key_exists('id', $payment)) {
-      // $log = LogFactory::makeFromArray( array('type' => LogType::ERROR, 'message' => '', 'category' => LogCategory::PAYMENT, 'source' => 'CHIP for GiveWP', 'context' => array(), 'id' => $donation_id ) );
-      // $log->save();
-
-      // return $log->getId();
+      
+      ChipGiveWPHelper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), print_r($payment, true)) );
 
       give_insert_payment_note( $donation_id, __('Failed to create purchase.', 'chip-for-givewp') );
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
+
+    ChipGiveWPHelper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s: %2$s', 'chip-for-givewp' ), $donation_id, print_r($payment, true)) );
 
     Give()->session->set('chip_id', $payment['id']);
     Give()->session->set('donation_id', $donation_id);

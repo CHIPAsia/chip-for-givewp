@@ -90,8 +90,7 @@ class ChipGiveWP {
     ) {
       unset( $gateway_list['chip'] );
     }
-  
-    // Output.
+
     return $gateway_list;
   }
 

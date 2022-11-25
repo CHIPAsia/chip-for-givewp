@@ -1,4 +1,5 @@
 <?php
+use Give\Log\ValueObjects\LogType;
 
 class ChipGiveWPListener {
 
@@ -51,6 +52,8 @@ class ChipGiveWPListener {
       return;
     }
 
+    ChipGiveWPHelper::log( null, LogType::INFO, __( 'Redirect received', 'chip-for-givewp' ) );
+
     $this->handle_processing();
   }
 
@@ -65,14 +68,18 @@ class ChipGiveWPListener {
     }
 
     if ($_GET[self::CALLBACK_KEY] != $passphrase) {
+      ChipGiveWPHelper::log( null, LogType::NOTICE, __( 'Callback failed due to invalid passphrase: %1$s', 'chip-for-givewp' ) );
       return;
     }
+
+    ChipGiveWPHelper::log( null, LogType::INFO, __( 'Callback received', 'chip-for-givewp' ) );
 
     $this->handle_processing();
   }
 
   private function handle_processing() {
     if ( !isset( $_GET['donation_id'] ) ) {
+      ChipGiveWPHelper::log( null, LogType::ERROR, __( 'Processing halted due to empty donation id', 'chip-for-givewp' ) );
       status_header(403);
       exit;
     }
@@ -82,6 +89,7 @@ class ChipGiveWPListener {
     $payment_gateway = give_get_payment_gateway( $donation_id );
 
     if ( $payment_gateway != 'chip' ) {
+      ChipGiveWPHelper::log( $donation_id, LogType::ERROR, __( 'Processing halted as payment gateway is not chip', 'chip-for-givewp' ) );
       exit;
     }
 
@@ -97,6 +105,7 @@ class ChipGiveWPListener {
     }
 
     if ( !empty($session_donation_id) && $donation_id != $session_donation_id) {
+      ChipGiveWPHelper::log( $donation_id, LogType::ERROR, __( 'Session donation not match with donation id!', 'chip-for-givewp' ) );
       give_die( __('Session donation not match with donation id!', 'chip-for-givewp') );
     }
 
@@ -116,6 +125,8 @@ class ChipGiveWPListener {
         $chip = ChipGiveWPAPI::get_instance($secret_key, '');
         $public_key = str_replace('\n',"\n", $chip->get_public_key());
         
+        ChipGiveWPHelper::log( $donation_id, LogType::INFO, __( 'Public key successfully fetched', 'chip-for-givewp' ) );
+
         ChipGiveWPHelper::update_fields( $form_id, 'chip-secret-key' . $ten_secret_key, $public_key, $prefix );
       }
 
@@ -123,9 +134,13 @@ class ChipGiveWPListener {
 
       if (openssl_verify( $content,  base64_decode($_SERVER['HTTP_X_SIGNATURE']), $public_key, 'sha256WithRSAEncryption' ) != 1) {
         $message = __('Success callback failed to be processed due to failure in verification.', 'chip-for-woocommerce');
-        // logging here
+
+        ChipGiveWPHelper::log( $donation_id, LogType::ERROR, $message );
+
         give_die($message, __('Failed verification', 'chip-for-givewp'), 403);
       }
+
+      ChipGiveWPHelper::log( $donation_id, LogType::INFO, __('callback message successfully validated', 'chip-for-givewp') );
 
       $payment    = json_decode($content, true);
       $payment_id = array_key_exists('id', $payment) ? sanitize_key($payment['id']) : '';
@@ -144,19 +159,23 @@ class ChipGiveWPListener {
       $chip = ChipGiveWPAPI::get_instance($secret_key, '');
       $payment = $chip->get_payment($payment_id);
     } else {
+      ChipGiveWPHelper::log( $donation_id, LogType::ERROR, __('Unexpected response', 'chip-for-givewp') );
       give_die( __('Unexpected response', 'chip-for-givewp') );
     }
 
     if ( give_get_payment_key( $donation_id ) != $payment['reference'] ) {
+      ChipGiveWPHelper::log( $donation_id, LogType::ERROR, __('Purchase key does not match!', 'chip-for-givewp') );
       give_die( __('Purchase key does not match!', 'chip-for-givewp'));
     }
 
     if ( give_get_payment_total( $donation_id ) != round($payment['purchase']['total'] / 100, give_get_price_decimals( $donation_id )) ) {
+      ChipGiveWPHelper::log( $donation_id, LogType::ERROR, __('Payment total does not match!', 'chip-for-givewp') );
       give_die( __('Payment total does not match!', 'chip-for-givewp'));
     }
 
     if ( isset($_GET['status']) AND $_GET['status'] == 'error' ) {
-      // add update donation to failed state
+      ChipGiveWPHelper::log( $donation_id, LogType::INFO, __('Status updated to failed', 'chip-for-givewp') );
+
       give_update_payment_status( $donation_id, 'failed' );
       wp_safe_redirect( give_get_failed_transaction_uri('?payment-id=' . $donation_id) );
       exit;
@@ -168,6 +187,7 @@ class ChipGiveWPListener {
 
     if ( !give_is_payment_complete( $donation_id ) ) {
       if ($payment['status'] == 'paid') {
+        ChipGiveWPHelper::log( $donation_id, LogType::INFO, __('Status updated to publish', 'chip-for-givewp') );
         give_update_payment_status( $donation_id );
       }
     }
@@ -182,6 +202,8 @@ class ChipGiveWPListener {
         'payment-id' => $donation_id,
       ), give_get_success_page_uri()
     );
+
+    ChipGiveWPHelper::log( $donation_id, LogType::INFO, __('Processing completed', 'chip-for-givewp') );
 
     wp_safe_redirect( $return );
     exit;
