@@ -1,10 +1,11 @@
 <?php
 
-class ChipGiveWPAdminGlobalSettings extends ChipGiveWPAdminSettings {
+class Chip_Givewp_Admin_Global_Settings extends Chip_Givewp_Admin_Settings {
 
   private static $_instance;
 
   public static function get_instance() {
+
     if ( self::$_instance == null ) {
       self::$_instance = new self();
     }
@@ -12,8 +13,8 @@ class ChipGiveWPAdminGlobalSettings extends ChipGiveWPAdminSettings {
     return self::$_instance;
   }
 
-  public function __construct()
-  {
+  public function __construct(){
+
     add_filter( 'give_get_settings_gateways', array( $this, 'register_setting_fields' ) );
   }
   
@@ -43,4 +44,4 @@ class ChipGiveWPAdminGlobalSettings extends ChipGiveWPAdminSettings {
   }
 }
 
-ChipGiveWPAdminGlobalSettings::get_instance();
+Chip_Givewp_Admin_Global_Settings::get_instance();

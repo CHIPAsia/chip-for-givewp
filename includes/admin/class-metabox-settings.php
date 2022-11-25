@@ -1,10 +1,11 @@
 <?php
 
-class ChipGiveWPAdminMetaboxSettings extends ChipGiveWPAdminSettings {
+class Chip_Givewp_Admin_Metabox_Settings extends Chip_Givewp_Admin_Settings {
 
   private static $_instance;
 
   public static function get_instance() {
+
     if ( self::$_instance == null ) {
       self::$_instance = new self();
     }
@@ -12,8 +13,8 @@ class ChipGiveWPAdminMetaboxSettings extends ChipGiveWPAdminSettings {
     return self::$_instance;
   }
 
-  public function __construct()
-  {
+  public function __construct() {
+
     add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_js' ) );
 
     add_filter( 'give_metabox_form_data_settings', array( $this, 'add_tab') );
@@ -76,4 +77,4 @@ class ChipGiveWPAdminMetaboxSettings extends ChipGiveWPAdminSettings {
   }
 }
 
-ChipGiveWPAdminMetaboxSettings::get_instance();
+Chip_Givewp_Admin_Metabox_Settings::get_instance();

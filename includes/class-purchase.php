@@ -2,7 +2,7 @@
 
 use Give\Log\ValueObjects\LogType;
 
-class ChipGiveWPPurchase {
+class Chip_Givewp_Purchase {
 
   private static $_instance;
 
@@ -28,7 +28,7 @@ class ChipGiveWPPurchase {
     do_action( 'give_before_chip_info_fields', $form_id );
     ?>
     <fieldset class="no-fields" id="give_chip_payment_info">
-      <?php echo stripslashes( $instructions ); ?>
+      <?php echo stripslashes( wp_kses_post( $instructions ) ); ?>
     </fieldset>
     <?php
 
@@ -53,7 +53,7 @@ class ChipGiveWPPurchase {
       $prefix = '_give_';
     }
 
-    $content = ChipGiveWPHelper::get_fields( $form_id, 'chip-content', $prefix);
+    $content = Chip_Givewp_Helper::get_fields( $form_id, 'chip-content', $prefix);
 
     $formatted_content = $this->get_formatted_content(
       $content,
@@ -96,14 +96,14 @@ class ChipGiveWPPurchase {
 
     if ( $donation_amount < 1 ) {
 
-      ChipGiveWPHelper::log( $form_id, LogType::ERROR, sprintf( __( 'Amount to be paid is less than 1. The amount to be paid is %s.', 'chip-for-givewp' ), $donation_amount ) );
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Amount to be paid is less than 1. The amount to be paid is %s.', 'chip-for-givewp' ), $donation_amount ) );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
 
     if ( $currency != 'MYR' ) {
 
-      ChipGiveWPHelper::log( $form_id, LogType::ERROR, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ) );
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ) );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
@@ -126,7 +126,7 @@ class ChipGiveWPPurchase {
 
     if ( ! $donation_id ) {
 
-      ChipGiveWPHelper::log( $form_id, LogType::ERROR, __( 'Unable to create a pending donation with Give', 'chip-for-givewp' ) );
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, __( 'Unable to create a pending donation with Give', 'chip-for-givewp' ) );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
@@ -138,14 +138,14 @@ class ChipGiveWPPurchase {
       $prefix = '_give_';
     }
 
-    $secret_key        = give_is_test_mode() ? ChipGiveWPHelper::get_fields($form_id, 'chip-test-secret-key', $prefix) : ChipGiveWPHelper::get_fields($form_id, 'chip-secret-key', $prefix);
-    $due_strict        = ChipGiveWPHelper::get_fields($form_id, 'chip-due-strict', $prefix);
-    $due_strict_timing = ChipGiveWPHelper::get_fields($form_id, 'chip-due-strict-timing', $prefix);
-    $send_receipt      = ChipGiveWPHelper::get_fields($form_id, 'chip-send-receipt', $prefix);
-    $brand_id          = ChipGiveWPHelper::get_fields($form_id, 'chip-brand-id', $prefix);
-    $billing_fields    = ChipGiveWPHelper::get_fields($form_id, 'chip-enable-billing-fields', $prefix );
+    $secret_key        = give_is_test_mode() ? Chip_Givewp_Helper::get_fields($form_id, 'chip-test-secret-key', $prefix) : Chip_Givewp_Helper::get_fields($form_id, 'chip-secret-key', $prefix);
+    $due_strict        = Chip_Givewp_Helper::get_fields($form_id, 'chip-due-strict', $prefix);
+    $due_strict_timing = Chip_Givewp_Helper::get_fields($form_id, 'chip-due-strict-timing', $prefix);
+    $send_receipt      = Chip_Givewp_Helper::get_fields($form_id, 'chip-send-receipt', $prefix);
+    $brand_id          = Chip_Givewp_Helper::get_fields($form_id, 'chip-brand-id', $prefix);
+    $billing_fields    = Chip_Givewp_Helper::get_fields($form_id, 'chip-enable-billing-fields', $prefix );
 
-    $listener = ChipGiveWPListener::get_instance();
+    $listener = Chip_Givewp_Listener::get_instance();
 
     $params = array(
       'success_callback' => $listener->get_callback_url( array('donation_id' => $donation_id, 'status' => 'paid') ),
@@ -181,18 +181,18 @@ class ChipGiveWPPurchase {
       $params['client']['state']          = substr($payment_data['post_data']['card_state'], 0, 2) ?? 'KL';
     }
     
-    $chip = ChipGiveWPAPI::get_instance($secret_key, $brand_id);
+    $chip = Chip_Givewp_API::get_instance($secret_key, $brand_id);
     $payment = $chip->create_payment($params);
 
     if (!array_key_exists('id', $payment)) {
       
-      ChipGiveWPHelper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), print_r($payment, true)) );
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), print_r($payment, true)) );
 
       give_insert_payment_note( $donation_id, __('Failed to create purchase.', 'chip-for-givewp') );
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
 
-    ChipGiveWPHelper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s: %2$s', 'chip-for-givewp' ), $donation_id, print_r($payment, true)) );
+    Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s: %2$s', 'chip-for-givewp' ), $donation_id, print_r($payment, true)) );
 
     Give()->session->set('chip_id', $payment['id']);
     Give()->session->set('donation_id', $donation_id);
@@ -215,4 +215,4 @@ class ChipGiveWPPurchase {
   }
 }
 
-ChipGiveWPPurchase::get_instance();
+Chip_Givewp_Purchase::get_instance();

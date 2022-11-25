@@ -8,12 +8,14 @@ jQuery( function ( $ ) {
       action: 'gwp_chip_refund',
       donation_id: donation_id,
     };
-    noteContainer = $('#give-payment-note');
+
+    noteContainer     = $('#give-payment-note');
     noteTypeContainer = $('#donation_note_type');
+
     $.ajax({
       type: 'POST',
       data: postData,
-      url: ajaxurl,
+      url:  ajaxurl,
       beforeSend: function () {
         noteContainer.prop('disabled', true);
         $('#chip-refund-button').prop('disabled', true);

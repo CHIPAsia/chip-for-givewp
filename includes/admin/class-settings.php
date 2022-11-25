@@ -1,6 +1,6 @@
 <?php
 
-abstract class ChipGiveWPAdminSettings {
+abstract class Chip_Givewp_Admin_Settings {
   public function setting_fields( $prefix = '' ) {
     $array =  array(
       array(
@@ -43,10 +43,10 @@ abstract class ChipGiveWPAdminSettings {
         'type' => 'text',
       ),
       array(
-        'name' => __( 'Send Receipt', 'chip-for-givewp' ),
-        'desc' => __( 'Whether to send receipt email when it\'s paid.', 'chip-for-givewp' ),
-        'id'   => $prefix . 'chip-send-receipt',
-        'type' => 'radio_inline',
+        'name'    => __( 'Send Receipt', 'chip-for-givewp' ),
+        'desc'    => __( 'Whether to send receipt email when it\'s paid.', 'chip-for-givewp' ),
+        'id'      => $prefix . 'chip-send-receipt',
+        'type'    => 'radio_inline',
         'default' => 'enabled',
         'options' => [
           'enabled'  => __( 'Enabled', 'chip-for-givewp' ),
@@ -54,10 +54,10 @@ abstract class ChipGiveWPAdminSettings {
         ],
       ),
       array(
-        'name' => __( 'Due Strict', 'chip-for-givewp' ),
-        'desc' => __( 'Whether to permit payments when Purchase\'s due has passed.', 'chip-for-givewp' ),
-        'id'   => $prefix . 'chip-due-strict',
-        'type' => 'radio_inline',
+        'name'    => __( 'Due Strict', 'chip-for-givewp' ),
+        'desc'    => __( 'Whether to permit payments when Purchase\'s due has passed.', 'chip-for-givewp' ),
+        'id'      => $prefix . 'chip-due-strict',
+        'type'    => 'radio_inline',
         'default' => 'disabled',
         'options' => [
           'enabled'  => __( 'Enabled', 'chip-for-givewp' ),
@@ -65,11 +65,11 @@ abstract class ChipGiveWPAdminSettings {
         ],
       ),
       array(
-        'name' => __( 'Due Strict Timing (minutes)', 'chip-for-givewp' ),
-        'desc' => __( 'Set timeframe allowed for a payment to be made.', 'chip-for-givewp' ),
-        'id'   => $prefix . 'chip-due-strict-timing',
+        'name'    => __( 'Due Strict Timing (minutes)', 'chip-for-givewp' ),
+        'desc'    => __( 'Set timeframe allowed for a payment to be made.', 'chip-for-givewp' ),
+        'id'      => $prefix . 'chip-due-strict-timing',
         'default' => '60',
-        'type' => 'number',
+        'type'    => 'number',
       )
     );
 

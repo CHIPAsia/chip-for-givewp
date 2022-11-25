@@ -15,7 +15,7 @@
 
 define( 'GWP_CHIP_MODULE_VERSION', 'v1.0.0');
 
-class ChipGiveWP {
+class Chip_Givewp {
 
   private static $_instance;
 
@@ -41,18 +41,18 @@ class ChipGiveWP {
 
   public function includes() {
     $includes_dir = dirname( __FILE__ ) . '/includes';
-    include $includes_dir . '/api.php';
-    include $includes_dir . '/helper.php';
+    include $includes_dir . '/class-api.php';
+    include $includes_dir . '/class-helper.php';
 
     if ( is_admin() ){
-      include $includes_dir . '/admin/settings.php';
-      include $includes_dir . '/admin/global-settings.php';
-      include $includes_dir . '/admin/metabox-settings.php';
-      include $includes_dir . '/admin/refund-button.php';
+      include $includes_dir . '/admin/class-settings.php';
+      include $includes_dir . '/admin/class-global-settings.php';
+      include $includes_dir . '/admin/class-metabox-settings.php';
+      include $includes_dir . '/admin/class-refund-button.php';
     }
 
-    include $includes_dir . '/listener.php';
-    include $includes_dir . '/purchase.php';
+    include $includes_dir . '/class-listener.php';
+    include $includes_dir . '/class-purchase.php';
   }
 
   public function add_filters() {
@@ -120,4 +120,4 @@ class ChipGiveWP {
   }
 }
 
-ChipGiveWP::get_instance();
+Chip_Givewp::get_instance();

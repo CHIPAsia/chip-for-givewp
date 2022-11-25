@@ -7,22 +7,22 @@
 // This is CHIP API URL Endpoint as per documented in: https://developer.chip-in.asia/api
 define("GIVE_CHIP_ROOT_URL", "https://gate.chip-in.asia");
 
-class ChipGiveWPAPI
+class Chip_Givewp_API
 {
   private static $_instance;
 
-  public static function get_instance($secret_key, $brand_id) {
+  public static function get_instance( $secret_key, $brand_id ) {
     if ( self::$_instance == null ) {
-      self::$_instance = new self($secret_key, $brand_id);
+      self::$_instance = new self( $secret_key, $brand_id );
     }
 
     return self::$_instance;
   }
 
-  public function __construct($secret_key, $brand_id)
+  public function __construct( $secret_key, $brand_id )
   {
     $this->secret_key = $secret_key;
-    $this->brand_id = $brand_id;
+    $this->brand_id   = $brand_id;
   }
 
   public function create_payment($params)
@@ -74,7 +74,7 @@ class ChipGiveWPAPI
       sprintf("%s/api/v1%s", GIVE_CHIP_ROOT_URL, $route),
       $params,
       [
-        'Content-type' => 'application/json',
+        'Content-type'  => 'application/json',
         'Authorization' => 'Bearer ' . $secret_key,
       ]
     );

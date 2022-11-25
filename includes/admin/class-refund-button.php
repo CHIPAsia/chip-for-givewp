@@ -1,10 +1,11 @@
 <?php
 
-class ChipGiveWPRefundButton {
+class Chip_Givewp_Refund_Button {
 
   private static $_instance;
 
   public static function get_instance() {
+
     if ( self::$_instance == null ) {
       self::$_instance = new self();
     }
@@ -12,20 +13,22 @@ class ChipGiveWPRefundButton {
     return self::$_instance;
   }
 
-  public function __construct()
-  {
+  public function __construct() {
+
     if ( !defined( 'GWP_CHIP_DISABLE_REFUND_PAYMENT' ) ) {
       $this->add_actions();
     }
   }
 
   public function add_actions() {
+
     add_action( 'give_view_donation_details_payment_meta_after', array( $this, 'refund_button') );
     add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_js' ) );
     add_action( 'wp_ajax_gwp_chip_refund', array( $this, 'refund' ), 10, 0 );
   }
 
   public function refund_button( $donation_id ) {
+
     if ( give_get_payment_gateway( $donation_id ) != 'chip' ) {
       return;
     }
@@ -41,19 +44,21 @@ class ChipGiveWPRefundButton {
     ?>
     <div class="give-order-tx-id give-admin-box-inside">
       <p>
-        <button id="chip-refund-button" class="button button-primary" data-donation-id="<?php echo absint( $donation_id ); ?>"><?php _e( 'Refund', 'chip-for-givewp' ); ?></button>
+        <button id="chip-refund-button" class="button button-primary" data-donation-id="<?php echo esc_attr( $donation_id ); ?>"><?php _e( 'Refund', 'chip-for-givewp' ); ?></button>
       </p>
     </div>
     <?php
   }
 
   public function enqueue_js( $hook ) {
+
     if ('give_forms_page_give-payment-history' === $hook) {
       wp_enqueue_script( 'gwp_chip_metabox', plugins_url( 'includes/js/refund.js', GWP_CHIP_FILE ) );
     }
   }
 
   public function refund() {
+
     $donation_id = absint( $_POST['donation_id'] );
 
     if ( ! current_user_can( 'edit_give_payments', $donation_id ) ) {
@@ -68,7 +73,7 @@ class ChipGiveWPRefundButton {
       wp_die( __( 'Donation is not in completed state.', 'chip-for-givewp' ), __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
     }
 
-    $form_id = give_get_payment_form_id( $donation_id );
+    $form_id       = give_get_payment_form_id( $donation_id );
     $customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
 
     $prefix = '';
@@ -76,10 +81,10 @@ class ChipGiveWPRefundButton {
       $prefix = '_give_';
     }
 
-    $secret_key = give_is_test_mode() ? ChipGiveWPHelper::get_fields($form_id, 'chip-test-secret-key', $prefix) : ChipGiveWPHelper::get_fields($form_id, 'chip-secret-key', $prefix);
+    $secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields($form_id, 'chip-test-secret-key', $prefix) : Chip_Givewp_Helper::get_fields($form_id, 'chip-secret-key', $prefix);
     $payment_id = give_get_meta( $donation_id, '_give_payment_transaction_id', true );
 
-    $chip = ChipGiveWPAPI::get_instance($secret_key, '');
+    $chip    = Chip_Givewp_API::get_instance($secret_key, '');
     $payment = $chip->refund_payment( $payment_id );
 
     if ( !is_array($payment) || !array_key_exists('id', $payment) ) {
@@ -103,4 +108,4 @@ class ChipGiveWPRefundButton {
   }
 }
 
-ChipGiveWPRefundButton::get_instance();
+Chip_Givewp_Refund_Button::get_instance();

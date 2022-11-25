@@ -1,7 +1,7 @@
 <?php
 use Give\Log\LogFactory as Log;
 use Give\Log\ValueObjects\LogCategory;
-class ChipGiveWPHelper {
+class Chip_Givewp_Helper {
   
   public static function get_fields( $form_id, $column, $prefix = '' ) {
     if ( empty($prefix) ) {
