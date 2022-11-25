@@ -1,4 +1,5 @@
 <?php
+use Give\Log\ValueObjects\LogType;
 
 class Chip_Givewp_Refund_Button {
 
@@ -61,15 +62,18 @@ class Chip_Givewp_Refund_Button {
 
     $donation_id = absint( $_POST['donation_id'] );
 
-    if ( ! current_user_can( 'edit_give_payments', $donation_id ) ) {
-      wp_die( __( 'You do not have permission to refund payments.', 'chip-for-givewp' ), __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
-    }
-
     if ( empty( $donation_id ) ) {
+      Chip_Givewp_Helper::log( null, LogType::ERROR, __( 'Donation ID was empty', 'chip-for-givewp' ) );
       die( '-1' );
     }
 
+    if ( ! current_user_can( 'edit_give_payments', $donation_id ) ) {
+      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'User didn\'t have permission to refund payment', 'chip-for-givewp' ) );
+      wp_die( __( 'You do not have permission to refund payments.', 'chip-for-givewp' ), __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
+    }
+
     if ( !give_is_payment_complete( $donation_id ) ) {
+      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'Donation is not in completed state.', 'chip-for-givewp' ) );
       wp_die( __( 'Donation is not in completed state.', 'chip-for-givewp' ), __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
     }
 
@@ -88,8 +92,12 @@ class Chip_Givewp_Refund_Button {
     $payment = $chip->refund_payment( $payment_id );
 
     if ( !is_array($payment) || !array_key_exists('id', $payment) ) {
-      wp_die( __( 'There was an error while refunding the payment.', 'chip-for-givewp' ), __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
+      $msg = sprintf( __('There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), print_r($payment, true));
+      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $msg );
+      wp_die( $msg, __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
     }
+
+    Chip_Givewp_Helper::log( $donation_id, LogType::HTTP, __('Payment refunded.', 'chip-for-givewp'), $payment );
 
     give_update_payment_status( $donation_id, 'refunded' );
 

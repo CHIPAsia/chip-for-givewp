@@ -96,14 +96,14 @@ class Chip_Givewp_Purchase {
 
     if ( $donation_amount < 1 ) {
 
-      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Amount to be paid is less than 1. The amount to be paid is %s.', 'chip-for-givewp' ), $donation_amount ) );
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Amount to be paid is less than 1. The amount to be paid is %s.', 'chip-for-givewp' ), $donation_amount ), $payment_data );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
 
     if ( $currency != 'MYR' ) {
 
-      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ) );
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ), $payment_data );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
@@ -126,7 +126,7 @@ class Chip_Givewp_Purchase {
 
     if ( ! $donation_id ) {
 
-      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, __( 'Unable to create a pending donation with Give', 'chip-for-givewp' ) );
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, __( 'Unable to create a pending donation with Give', 'chip-for-givewp' ), $donation_data );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
@@ -192,7 +192,7 @@ class Chip_Givewp_Purchase {
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
 
-    Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s: %2$s', 'chip-for-givewp' ), $donation_id, print_r($payment, true)) );
+    Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s', 'chip-for-givewp' ), $donation_id), $payment );
 
     Give()->session->set('chip_id', $payment['id']);
     Give()->session->set('donation_id', $donation_id);
