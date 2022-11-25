@@ -74,6 +74,13 @@ This plugin rely on CHIP AP ([WC_CHIP_ROOT_URL](https://gate.chip-in.asia)) as f
   - **/purchases/<id\>/refund**
     - This is for refunding payment
 
+= How to disable refund feature? =
+
+You need to paste the code below in your wp-config.php to disable refund.
+```
+define( 'GWP_CHIP_DISABLE_REFUND_PAYMENT', true);
+```
+
 == Links ==
 
 [CHIP Website](https://www.chip-in.asia)

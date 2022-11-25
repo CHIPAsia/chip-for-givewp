@@ -48,6 +48,7 @@ class ChipGiveWP {
       include $includes_dir . '/admin/settings.php';
       include $includes_dir . '/admin/global-settings.php';
       include $includes_dir . '/admin/metabox-settings.php';
+      include $includes_dir . '/admin/refund-button.php';
     }
 
     include $includes_dir . '/listener.php';

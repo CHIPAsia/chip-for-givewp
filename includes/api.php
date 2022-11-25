@@ -57,7 +57,7 @@ class ChipGiveWPAPI
     return $this->call('GET', '/public_key/');
   }
 
-  public function refund_payment($payment_id, $params)
+  public function refund_payment($payment_id, $params = [])
   {
     return $this->call('POST', "/purchases/{$payment_id}/refund/", $params);
   }
