@@ -24,10 +24,7 @@ class ChipGiveWPListener {
     add_action( 'init', array( $this, 'handle_redirect' ) );
   }
 
-  public function get_callback_url( $params ) {
-    if (!is_array($params)) {
-      $params = array( 'donation_id' => $params );
-    }
+  public function get_callback_url( array $params ) {
 
     $passphrase = get_option(self::CALLBACK_PASSPHRASE, false);
     if (!$passphrase) {
