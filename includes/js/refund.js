@@ -3,9 +3,11 @@ jQuery( function ( $ ) {
   $('#chip-refund-button').on('click', function (e) {
     e.preventDefault();
     donation_id = $(this).data('donation-id');
+    nonce       = $(this).data('nonce');
 
     postData = {
       action: 'gwp_chip_refund',
+      gwp_chip_refund_payment: nonce,
       donation_id: donation_id,
     };
 
