@@ -36,7 +36,7 @@ class Chip_Givewp {
 
   public function define() {
     define( 'GWP_CHIP_FILE', __FILE__ );
-    define( 'GWP_BASENAME', plugin_basename(GWP_CHIP_FILE));
+    define( 'GWP_CHIP_BASENAME', plugin_basename(GWP_CHIP_FILE));
   }
 
   public function includes() {
@@ -56,7 +56,7 @@ class Chip_Givewp {
   }
 
   public function add_filters() {
-    add_filter( 'plugin_action_links_' . GWP_BASENAME, array( $this, 'setting_link' ) );
+    add_filter( 'plugin_action_links_' . GWP_CHIP_BASENAME, array( $this, 'setting_link' ) );
     add_filter( 'give_payment_gateways', array( $this, 'register_payment_method' ) );
     add_filter( 'give_get_sections_gateways', array( $this, 'register_payment_gateway_sections' ) );
     add_filter( 'give_enabled_payment_gateways', array( $this, 'filter_gateway' ), 10, 2 );
