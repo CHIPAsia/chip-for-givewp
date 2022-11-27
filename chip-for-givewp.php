@@ -40,19 +40,19 @@ class Chip_Givewp {
   }
 
   public function includes() {
-    $includes_dir = dirname( __FILE__ ) . '/includes';
-    include $includes_dir . '/class-api.php';
-    include $includes_dir . '/class-helper.php';
+    $includes_dir = plugin_dir_path( GWP_CHIP_FILE ) . 'includes/';
+    include $includes_dir . 'class-api.php';
+    include $includes_dir . 'class-helper.php';
 
     if ( is_admin() ){
-      include $includes_dir . '/admin/class-settings.php';
-      include $includes_dir . '/admin/class-global-settings.php';
-      include $includes_dir . '/admin/class-metabox-settings.php';
-      include $includes_dir . '/admin/class-refund-button.php';
+      include $includes_dir . 'admin/class-settings.php';
+      include $includes_dir . 'admin/class-global-settings.php';
+      include $includes_dir . 'admin/class-metabox-settings.php';
+      include $includes_dir . 'admin/class-refund-button.php';
     }
 
-    include $includes_dir . '/class-listener.php';
-    include $includes_dir . '/class-purchase.php';
+    include $includes_dir . 'class-listener.php';
+    include $includes_dir . 'class-purchase.php';
   }
 
   public function add_filters() {
