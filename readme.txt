@@ -30,6 +30,10 @@ This plugin will enable your WooCommerce site to be integrated with CHIP as per 
 
 == Installation ==
 
+= Demo =
+
+[Test with WordPress](https://tastewp.com/new/?pre-installed-plugin-slug=chip-for-givewp&pre-installed-plugin-slug=give&redirect=plugins.php&ni=true)
+
 = Minimum Requirements =
 
 * WordPress 4.7 or greater

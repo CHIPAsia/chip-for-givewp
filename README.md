@@ -17,6 +17,10 @@ This module adds CHIP payment method option to your GiveWP.
 
 Set the **Brand ID** and **Secret Key** in the plugins settings.
 
+## Demo
+
+[Test with WordPress](https://tastewp.com/new/?pre-installed-plugin-slug=chip-for-givewp&pre-installed-plugin-slug=give&redirect=plugins.php&ni=true)
+
 ## Other
 
 Facebook: [Merchants & DEV Community](https://www.facebook.com/groups/3210496372558088)
