@@ -87,7 +87,7 @@ class Chip_Givewp {
     if (
       ( false === strpos( $_SERVER['REQUEST_URI'], '/wp-admin/post-new.php?post_type=give_forms' ) )
       && $form_id
-      && ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' ), [ 'enabled', 'global' ] )
+      && ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true ), [ 'enabled', 'global' ] )
     ) {
       unset( $gateway_list['chip'] );
     }
