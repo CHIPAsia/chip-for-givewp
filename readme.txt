@@ -25,8 +25,8 @@ This plugin will enable your WooCommerce site to be integrated with CHIP as per 
 
 == Changelog ==
 
-= 1.0.0 - 2022-11-23 =
-* New - Intial Release.
+= 1.0.0 - 2022-11-29 =
+* New - Initial Release.
 
 == Installation ==
 
