@@ -20,8 +20,9 @@ This plugin will enable your WooCommerce site to be integrated with CHIP as per 
 
 == Screenshots ==
 * Fill up the form with Brand ID and Secret Key. Tick Enable API and Save changes to activate.
-* Donation page
-* Give donation page list
+* Optionally, you may set the Brand ID and Secret Key on form basis.
+* Donation page. Optionally, the billing fields can be disabled.
+* Give donation page list.
 
 == Changelog ==
 
