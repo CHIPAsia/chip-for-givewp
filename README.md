@@ -3,7 +3,7 @@
 # CHIP for GiveWP (Give - Donation Plugin)
 [![WP compatibility](https://plugintests.com/plugins/wporg/chip-for-givewp/wp-badge.svg)](https://plugintests.com/plugins/wporg/chip-for-givewp/latest)
 [![PHP compatibility](https://plugintests.com/plugins/wporg/chip-for-givewp/php-badge.svg)](https://plugintests.com/plugins/wporg/chip-for-givewp/latest)
-​
+
 This module adds CHIP payment method option to your GiveWP.
 
 ## Installation
