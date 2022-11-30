@@ -4,7 +4,7 @@
  * Plugin Name: CHIP for GiveWP
  * Plugin URI: https://wordpress.org/plugins/chip-for-givewp/
  * Description: Cash, Card and Coin Handling Integrated Platform
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Chip In Sdn Bhd
  * Author URI: https://www.chip-in.asia
  *
@@ -13,7 +13,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'GWP_CHIP_MODULE_VERSION', 'v1.0.0');
+define( 'GWP_CHIP_MODULE_VERSION', 'v1.0.1');
 
 class Chip_Givewp {
 
