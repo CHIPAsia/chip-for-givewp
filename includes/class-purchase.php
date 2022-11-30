@@ -159,7 +159,7 @@ class Chip_Givewp_Purchase {
       'brand_id'         => $brand_id,
       'client'           => [
         'email'          => $payment_data['user_email'],
-        'full_name'      => substr($payment_data['user_info']['first_name'] . $payment_data['user_info']['last_name'], 0, 30),
+        'full_name'      => substr($payment_data['user_info']['first_name'] . ' ' . $payment_data['user_info']['last_name'], 0, 30),
       ],
       'purchase'         => array(
         'timezone'   => apply_filters( 'gwp_chip_purchase_timezone', $this->get_timezone() ),
