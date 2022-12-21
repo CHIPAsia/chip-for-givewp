@@ -1,6 +1,6 @@
 === CHIP for GiveWP ===
 Contributors: chipasia, wanzulnet
-Tags: chip, cash, card, coin
+Tags: chip
 Requires at least: 4.7
 Tested up to: 6.1
 Stable tag: 1.0.1
@@ -8,15 +8,15 @@ Requires PHP: 7.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-CHIP - Cash, Card and Coin Handling Integrated Platform. Securely accept payment with CHIP for GiveWP.
+CHIP - Better Payment & Business Solutions. Securely accept payment with CHIP for GiveWP.
 
 == Description ==
 
 This is an official CHIP plugin for GiveWP.
 
-CHIP is an abbreviation of Cash, Card and Coin Handling Integrated Platform. CHIP allows you to securely sell your products and get paid.
+CHIP is a payment and business solutions platform that allow you to securely sell your products and get paid via multiple local and international payment methods.
 
-This plugin will enable your WooCommerce site to be integrated with CHIP as per documented in [API Documentation](https://developer.chip-in.asia/api#online_purchases_custom_payment_flow_direct_post).
+This plugin will enable your GiveWP site to be integrated with CHIP as per documented in [API Documentation](https://developer.chip-in.asia/api#online_purchases_custom_payment_flow_direct_post).
 
 == Screenshots ==
 * Fill up the form with Brand ID and Secret Key. Tick Enable API and Save changes to activate.
