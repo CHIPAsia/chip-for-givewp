@@ -35,7 +35,7 @@ class Chip_Givewp_Admin_Metabox_Settings extends Chip_Givewp_Admin_Settings {
         [
           'id'        => 'chip_metabox_options',
           'title'     => __( 'CHIP', 'chip-for-givewp' ),
-          'icon-html' => '<i class="fas fa-credit-card"></i>',
+          'icon-html' => '<object data=" ' . esc_url( plugins_url( 'assets/logo.svg', GWP_CHIP_FILE ) ) . '" width="13" height="13.18"></object>',
           'fields'    => apply_filters( 'gwp_chip_metabox_fields', [] ),
         ]
       );
