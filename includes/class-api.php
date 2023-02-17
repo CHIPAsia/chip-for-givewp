@@ -25,6 +25,12 @@ class Chip_Givewp_API
     $this->brand_id   = $brand_id;
   }
 
+  public function set_keys($secret_key, $brand_id)
+  {
+    $this->secret_key = $secret_key;
+    $this->brand_id   = $brand_id;
+  }
+
   public function create_payment($params)
   {
     // time() is to force fresh instead cache
@@ -60,6 +66,28 @@ class Chip_Givewp_API
   public function refund_payment($payment_id, $params = [])
   {
     return $this->call('POST', "/purchases/{$payment_id}/refund/", $params);
+  }
+
+  public function create_billing_templates($params) 
+  {
+    return $this->call('POST', "/billing_templates/", $params);
+  }
+
+  public function add_subscriber($billing_templates_id, $params) 
+  {
+    return $this->call('POST', "/billing_templates/{$billing_templates_id}/add_subscriber/", $params);
+  }
+
+  public function create_client($params) 
+  {
+    return $this->call('POST', "/clients/", $params);
+  }
+
+  // this is secret feature
+  public function get_client_by_email($email)
+  {
+    $email_encoded = urlencode($email);
+    return $this->call('GET', "/clients/?q={$email_encoded}");
   }
 
   private function call($method, $route, $params = [])

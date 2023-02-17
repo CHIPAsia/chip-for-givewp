@@ -56,6 +56,7 @@ class Chip_Givewp {
   }
 
   public function add_filters() {
+    add_action( 'plugins_loaded', array( $this, 'load_recurring' ) );
     add_filter( 'plugin_action_links_' . GWP_CHIP_BASENAME, array( $this, 'setting_link' ) );
     add_filter( 'give_payment_gateways', array( $this, 'register_payment_method' ) );
     add_filter( 'give_get_sections_gateways', array( $this, 'register_payment_gateway_sections' ) );
@@ -117,6 +118,11 @@ class Chip_Givewp {
     );
 
     return array_merge($new_links, $links);
+  }
+
+  public function load_recurring() {
+    include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/class-recurring.php';
+    include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/class-give-recurring-chip.php';
   }
 }
 
