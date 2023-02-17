@@ -4,7 +4,7 @@
  * Plugin Name: CHIP for GiveWP
  * Plugin URI: https://wordpress.org/plugins/chip-for-givewp/
  * Description: CHIP - Better Payment & Business Solutions
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Chip In Sdn Bhd
  * Author URI: https://www.chip-in.asia
  *
@@ -13,7 +13,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'GWP_CHIP_MODULE_VERSION', 'v1.0.1');
+define( 'GWP_CHIP_MODULE_VERSION', 'v1.0.2');
 
 class Chip_Givewp {
 
@@ -87,7 +87,7 @@ class Chip_Givewp {
     if (
       ( false === strpos( $_SERVER['REQUEST_URI'], '/wp-admin/post-new.php?post_type=give_forms' ) )
       && $form_id
-      && ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true ), [ 'enabled', 'global' ] )
+      && ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' ), [ 'enabled', 'global' ] )
     ) {
       unset( $gateway_list['chip'] );
     }
@@ -96,7 +96,7 @@ class Chip_Givewp {
   }
 
   public function billing_fields( $form_id ) {
-    $chip_customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
+    $chip_customization = give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' );
     $billing_fields        = give_get_meta( $form_id, '_give_chip-enable-billing-fields', true );
 
     $global_billing_fields = give_get_option( 'chip-enable-billing-fields' );
