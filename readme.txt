@@ -3,7 +3,7 @@ Contributors: chipasia, wanzulnet
 Tags: chip
 Requires at least: 4.7
 Tested up to: 6.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 Requires PHP: 7.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,6 +26,9 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 * Give donation page list.
 
 == Changelog ==
+
+= 1.0.3 - 2023-03-08 =
+* Fixed - Donator seeing donation failed page when there is previous failed attempt.
 
 = 1.0.2 - 2023-02-17 =
 * Fixed - Form created before installing CHIP should adhere to global configuration.

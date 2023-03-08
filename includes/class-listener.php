@@ -175,7 +175,7 @@ class Chip_Givewp_Listener {
       give_die( __('Payment total does not match!', 'chip-for-givewp'));
     }
 
-    if ( isset($_GET['status']) AND $_GET['status'] == 'error' ) {
+    if ( $payment['status'] != 'paid' ) {
       Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __('Status updated to failed', 'chip-for-givewp'), $payment );
 
       give_update_payment_status( $donation_id, 'failed' );
