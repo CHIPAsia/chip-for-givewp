@@ -56,19 +56,20 @@ class Chip_Givewp {
   }
 
   public function add_filters() {
-    add_action( 'plugins_loaded', array( $this, 'load_recurring' ) );
     add_filter( 'plugin_action_links_' . GWP_CHIP_BASENAME, array( $this, 'setting_link' ) );
     add_filter( 'give_payment_gateways', array( $this, 'register_payment_method' ) );
+    add_filter( 'give_register_gateway', array( $this, 'register_payment_method') );
     add_filter( 'give_get_sections_gateways', array( $this, 'register_payment_gateway_sections' ) );
     add_filter( 'give_enabled_payment_gateways', array( $this, 'filter_gateway' ), 10, 2 );
   }
 
   public function add_actions() {
     add_action( 'give_before_chip_info_fields', array( $this, 'billing_fields' ) );
+    add_action( 'give_recurring_process_checkout', array( $this, 'recurring_validate_settings'), 10, 2);
+    add_action( 'plugins_loaded', array( $this, 'load_recurring' ) );
   }
 
   public function register_payment_method( $gateways ) {
-    
     $gateways['chip'] = array(
       'admin_label'    => __( 'CHIP', 'chip-for-givewp' ),
       'checkout_label' => __( 'Online Banking/Credit Card', 'chip-for-givewp' ),
@@ -121,8 +122,37 @@ class Chip_Givewp {
   }
 
   public function load_recurring() {
-    include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/class-recurring.php';
-    include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/class-give-recurring-chip.php';
+    if (class_exists('Give_Recurring') && class_exists('Give_Recurring_Gateway')) {
+      include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/class-recurring.php';
+      include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/class-give-recurring-chip.php';
+      include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/class-give-recurring-listener.php';
+    }
+  }
+
+  public function recurring_validate_settings( $donation_data, $this_gateway ) {
+    $id = 1;
+
+    if ( !is_user_logged_in() ) {
+      give_set_error( $id++, __('Donor are not logged in. CHIP for GiveWP requires donor to be logged in!', 'chip-for-givewp') );
+    }
+
+    if ( $donation_data['user_email'] != wp_get_current_user()->user_email ) {
+      give_set_error( $id++, __('Email address not match with registered email address!', 'chip-for-givewp') );
+    }
+
+    if ($donation_data['times'] > 0 || $donation_data['times'] !== 0 ) {
+      give_set_error( $id++, __('Donation with predefined time are not supported!', 'chip-for-givewp') );
+    }
+
+    $form_id = $donation_data['post_data']['give-form-id'];
+    $currency = give_get_currency( $donation_data['post_data']['give-form-id'], $donation_data );
+
+    if ( $currency != 'MYR' ) {
+      give_set_error( $id++, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ));
+    }
+
+
+    // TODO: Get webhook API and check if the public key is match (possibly need to loop through)
   }
 }
 

@@ -39,6 +39,7 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
   }
 
   public function create_payment_profiles() {
+    $error_id = 1;
     $form_id = $this->subscriptions['form_id'];
 
     $customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
@@ -56,7 +57,7 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
     $get_client_by_email = $chip->get_client_by_email($this->purchase_data['user_email']);
     
     if (array_key_exists('__all__', $get_client_by_email)) {
-      give_set_error( '1', __('Invalid Secret Key', 'chip-for-givewp') );
+      give_set_error( $error_id++, __('Invalid Secret Key', 'chip-for-givewp') );
       return;
     }
 
@@ -70,32 +71,38 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
     }
 
     if (array_key_exists('__all__', $client)) {
-      give_set_error( '1', __('Failed to retrieve client', 'chip-for-givewp') );
+      give_set_error( $error_id++, __('Failed to retrieve client', 'chip-for-givewp') );
       return;
     }
 
+    $listener = Chip_Givewp_Recurring_Listener::get_instance();
+    $redirect_url = $listener->get_redirect_url( array('donation_id' => $this->payment_id) );
+
     $billing_template_params = array(
-      'success_redirect' => 'https://google.com',
-      'failure_redirect' => 'https://google.com',
+      'success_redirect' => $redirect_url,
+      'failure_redirect' => $redirect_url,
+      'cancel_redirect' => $redirect_url,
       'purchase' => array(
         'currency' => 'MYR',
         'products' => array(
           array(
-            'name' => give_payment_gateway_item_title($this->purchase_data, 256),
-            'price' => round($this->purchase_data['price'] * 100),
+            'name' => give_payment_gateway_item_title( $this->purchase_data, 256 ),
+            'price' => round( $this->purchase_data['price'] * 100 ),
           )
-          ),
+        ),
         'notes' => 'recurring test',
         'timezone' => 'Asia/Kuala_Lumpur',
         'due_strict' => true
       ),
+      'creator_agent' => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
+      'platform' => 'givewp',
       'brand_id' => $brand_id,
-      'title' => substr(give_payment_gateway_item_title($this->purchase_data, 128) . ' ' . $this->purchase_data['post_data']['give_first'] . ' ' . $this->purchase_data['post_data']['give_last'], 0, 256),
+      'title' => substr( give_payment_gateway_item_title( $this->purchase_data, 128 ) . ' ' . $this->purchase_data['post_data']['give_first'] . ' ' . $this->purchase_data['post_data']['give_last'], 0, 256 ),
       'is_subscription' => true,
       'subscription_period' => $this->get_subscription_period($this->subscriptions['period'], $this->subscriptions['frequency']),
       'subscription_period_units' => $this->get_subscription_period_units($this->subscriptions['period']),
-      "subscription_due_period" => 1,
-      "subscription_due_period_units" => "days",
+      'subscription_due_period' => 1,
+      'subscription_due_period_units' => 'days',
       'subscription_charge_period_end' => false,
       'subscription_trial_periods' => 0,
       'subscription_active' => true,
@@ -109,15 +116,18 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
       'send_invoice_on_charge_failure' => true,
       'send_invoice_on_add_subscriber' => false,
       'send_receipt' => true,
+      'payment_method_whitelist' => ['visa', 'mastercard'],
     ));
-
     
-		// This is a temporary ID used to look it up later during webhook events
-		$this->subscriptions['profile_id'] = $billing_templates['id'];
+    // This is a temporary ID used to look it up later during webhook events
+    $this->subscriptions['profile_id'] = $billing_templates['id'];
     $this->subscriptions['transaction_id'] = $purchase['purchase']['id'];
 
     $this->chip_purchase = $purchase;
-	}
+
+    Give()->session->set('chip_id', $purchase['purchase']['id']);
+    Give()->session->set('donation_id', $this->payment_id);
+  }
 
   private function get_subscription_period($subscription, $frequency) {
     if (in_array($subscription, array('day', 'week', 'month'))){

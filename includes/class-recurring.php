@@ -12,9 +12,7 @@ class Chip_Givewp_Recurring {
   }
 
   public function __construct(){
-    if (class_exists('Give_Recurring') && class_exists('Give_Recurring_Gateway')) {
-      $this->init();
-    }
+    $this->init();
   }
 
   public function init() {
