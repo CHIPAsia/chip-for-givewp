@@ -125,65 +125,6 @@ class Chip_Givewp_Recurring_Listener {
 
     $payment = $chip->get_payment( $payment_id );
 
-    if ( empty($payment_id) && isset($_SERVER['HTTP_X_SIGNATURE']) ) {
-      $form_id = give_get_payment_form_id( $donation_id );
-      $customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
-      
-      $prefix = '';
-      if ( give_is_setting_enabled( $customization ) ) {
-        $prefix = '_give_';
-      }
-
-      
-      if ( empty($public_key = Chip_Givewp_Helper::get_fields( $form_id, 'chip-public-key' . $ten_secret_key, $prefix )) ) {
-        $chip = Chip_Givewp_API::get_instance($secret_key, '');
-        $public_key = str_replace('\n',"\n", $chip->get_public_key());
-        
-        Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __( 'Public key successfully fetched', 'chip-for-givewp' ) );
-
-        Chip_Givewp_Helper::update_fields( $form_id, 'chip-secret-key' . $ten_secret_key, $public_key, $prefix );
-      }
-
-      $content = file_get_contents('php://input');
-
-      if (openssl_verify( $content,  base64_decode($_SERVER['HTTP_X_SIGNATURE']), $public_key, 'sha256WithRSAEncryption' ) != 1) {
-        $message = __('Success callback failed to be processed due to failure in verification.', 'chip-for-givewp');
-
-        Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $message );
-
-        give_die($message, __('Failed verification', 'chip-for-givewp'), 403);
-      }
-
-      $payment    = json_decode($content, true);
-      $payment_id = array_key_exists('id', $payment) ? sanitize_key($payment['id']) : '';
-
-      Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __('Callback message successfully validated', 'chip-for-givewp'), $payment );
-    } elseif ( $payment_id ) {
-      
-      $form_id = give_get_payment_form_id( $donation_id );
-      $customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
-
-      $prefix = '';
-      if ( give_is_setting_enabled( $customization ) ) {
-        $prefix = '_give_';
-      }
-
-      $secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields($form_id, 'chip-test-secret-key', $prefix) : Chip_Givewp_Helper::get_fields($form_id, 'chip-secret-key', $prefix);
-
-      $chip = Chip_Givewp_API::get_instance($secret_key, '');
-      $payment = $chip->get_payment($payment_id);
-
-      Chip_Givewp_Helper::log( $donation_id, LogType::HTTP, __('Successfully get purchases', 'chip-for-givewp'), $payment );
-    } else {
-      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Unexpected response', 'chip-for-givewp') );
-      give_die( __('Unexpected response', 'chip-for-givewp') );
-    }
-
-    if ( give_get_payment_key( $donation_id ) != $payment['reference'] ) {
-      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Purchase key does not match!', 'chip-for-givewp'), $payment );
-      give_die( __('Purchase key does not match!', 'chip-for-givewp'));
-    }
-
     if ( give_get_payment_total( $donation_id ) != round($payment['purchase']['total'] / 100, give_get_price_decimals( $donation_id )) ) {
       Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Payment total does not match!', 'chip-for-givewp'), $payment );
       give_die( __('Payment total does not match!', 'chip-for-givewp'));
@@ -215,6 +156,17 @@ class Chip_Givewp_Recurring_Listener {
           $give_payment->save();
 
         }
+
+        $subscription = new Give_Subscription( $payment['billing_template_id'], true );
+
+        $args = array(
+          'amount'         => $payment['payment']['amount'],
+          'transaction_id' => $payment['id'],
+          'post_date'      => date_i18n( 'Y-m-d H:i:s', $payment['payment']['paid_on'] ),
+        );
+
+        $subscription->add_payment( $args );
+        $subscription->renew();
       }
     }
 

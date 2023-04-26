@@ -94,7 +94,7 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
         'timezone' => 'Asia/Kuala_Lumpur',
         'due_strict' => true
       ),
-      'creator_agent' => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
+      'creator_agent' => 'GiveWP Recurring: ' . GWP_CHIP_MODULE_VERSION,
       'platform' => 'givewp',
       'brand_id' => $brand_id,
       'title' => substr( give_payment_gateway_item_title( $this->purchase_data, 128 ) . ' ' . $this->purchase_data['post_data']['give_first'] . ' ' . $this->purchase_data['post_data']['give_last'], 0, 256 ),
