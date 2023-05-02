@@ -73,6 +73,18 @@ abstract class Chip_Givewp_Admin_Settings {
       )
     );
 
+    if (class_exists('Give_Recurring') && class_exists('Give_Recurring_Gateway')) {
+      $listener     = Chip_Givewp_Recurring_Listener::get_instance();
+      $callback_url = $listener->get_callback_url( array() );
+
+      $array[] = array(
+        'name'    => __( 'Webhook Public Key', 'chip-for-givewp' ),
+        'desc'    => sprintf( __( 'This is are mandatory option to allow recurring donation. Event must be subscribed to <code>Purchase paid</code>, <code>Subscription payment failed</code>, <code>Client cancelled billing subscription</code>. Callback URL: <code>%1$s</code>', 'chip-for-givewp' ), $callback_url ),
+        'id'      => $prefix . 'chip-webhook-public-key',
+        'type'    => 'textarea'
+      );
+    }
+
     if ( !empty($prefix) ) {
       for ( $i = 0; $i < sizeof($array); $i++ ) {
         $array[$i]['row_classes'] = 'give-subfield give-hidden';

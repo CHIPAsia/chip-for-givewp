@@ -4,6 +4,16 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
 
   public $chip_purchase;
 
+  private static $_instance;
+
+  public static function get_instance() {
+    if ( static::$_instance == null ) {
+      static::$_instance = new static();
+    }
+
+    return static::$_instance;
+  }
+
   public function init() {
 
     $this->id = 'chip';
@@ -75,34 +85,37 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
       return;
     }
 
-    $listener = Chip_Givewp_Recurring_Listener::get_instance();
+    $listener     = Chip_Givewp_Recurring_Listener::get_instance();
     $redirect_url = $listener->get_redirect_url( array('donation_id' => $this->payment_id) );
+
+    $due_strict   = Chip_Givewp_Helper::get_fields($form_id, 'chip-due-strict', $prefix);
+    $send_receipt = Chip_Givewp_Helper::get_fields($form_id, 'chip-send-receipt', $prefix);
 
     $billing_template_params = array(
       'success_redirect' => $redirect_url,
       'failure_redirect' => $redirect_url,
-      'cancel_redirect' => $redirect_url,
+      'cancel_redirect'  => $redirect_url,
       'purchase' => array(
-        'currency' => 'MYR',
+        'currency' => give_get_currency( $form_id, $this->purchase_data ),
         'products' => array(
           array(
-            'name' => give_payment_gateway_item_title( $this->purchase_data, 256 ),
+            'name'  => give_payment_gateway_item_title( $this->purchase_data, 256 ),
             'price' => round( $this->purchase_data['price'] * 100 ),
           )
         ),
-        'notes' => 'recurring test',
-        'timezone' => 'Asia/Kuala_Lumpur',
-        'due_strict' => true
+        'notes'      => 'Purchase: ' . $this->purchase_data['purchase_key'],
+        'timezone'   => 'Asia/Kuala_Lumpur',
+        'due_strict' => give_is_setting_enabled( $due_strict )
       ),
-      'creator_agent' => 'GiveWP Recurring: ' . GWP_CHIP_MODULE_VERSION,
-      'platform' => 'givewp',
-      'brand_id' => $brand_id,
-      'title' => substr( give_payment_gateway_item_title( $this->purchase_data, 128 ) . ' ' . $this->purchase_data['post_data']['give_first'] . ' ' . $this->purchase_data['post_data']['give_last'], 0, 256 ),
+      'creator_agent'   => 'GiveWP Recurring: ' . GWP_CHIP_MODULE_VERSION,
+      'platform'        => 'givewp',
+      'brand_id'        => $brand_id,
+      'title'           => substr( give_payment_gateway_item_title( $this->purchase_data, 128 ) . ' ' . $this->purchase_data['post_data']['give_first'] . ' ' . $this->purchase_data['post_data']['give_last'], 0, 256 ),
       'is_subscription' => true,
       'subscription_period' => $this->get_subscription_period($this->subscriptions['period'], $this->subscriptions['frequency']),
       'subscription_period_units' => $this->get_subscription_period_units($this->subscriptions['period']),
-      'subscription_due_period' => 1,
-      'subscription_due_period_units' => 'days',
+      'subscription_due_period' => $this->get_subscription_period($this->subscriptions['period'], $this->subscriptions['frequency']),
+      'subscription_due_period_units' => $this->get_subscription_period_units($this->subscriptions['period']),
       'subscription_charge_period_end' => false,
       'subscription_trial_periods' => 0,
       'subscription_active' => true,
@@ -114,8 +127,8 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
     $purchase = $chip->add_subscriber($billing_templates['id'], array(
       'client_id' => $client['id'],
       'send_invoice_on_charge_failure' => true,
-      'send_invoice_on_add_subscriber' => false,
-      'send_receipt' => true,
+      'send_invoice_on_add_subscriber' => true,
+      'send_receipt' => give_is_setting_enabled( $send_receipt ),
       'payment_method_whitelist' => ['visa', 'mastercard'],
     ));
     
@@ -168,4 +181,4 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
   }
 }
 
-new Give_Recurring_Chip();
+Give_Recurring_Chip::get_instance();
