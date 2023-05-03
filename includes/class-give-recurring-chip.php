@@ -119,7 +119,8 @@ class Give_Recurring_Chip extends Give_Recurring_Gateway {
       'subscription_charge_period_end' => false,
       'subscription_trial_periods' => 0,
       'subscription_active' => true,
-      'force_recurring' => true
+      'force_recurring' => true,
+      'number_of_billing_cycles' => $this->purchase_data['times']
     );
 
     $billing_templates = $chip->create_billing_templates($billing_template_params);

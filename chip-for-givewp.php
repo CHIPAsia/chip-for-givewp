@@ -140,10 +140,6 @@ class Chip_Givewp {
       give_set_error( $id++, __('Email address not match with registered email address!', 'chip-for-givewp') );
     }
 
-    if ($donation_data['times'] > 0 || $donation_data['times'] !== 0 ) {
-      give_set_error( $id++, __('Donation with predefined time are not supported!', 'chip-for-givewp') );
-    }
-
     $form_id = $donation_data['post_data']['give-form-id'];
     $currency = give_get_currency( $donation_data['post_data']['give-form-id'], $donation_data );
 
