@@ -194,8 +194,7 @@ class Chip_Givewp_Purchase {
 
     Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s', 'chip-for-givewp' ), $donation_id), $payment );
 
-    Give()->session->set('chip_id', $payment['id']);
-    Give()->session->set('donation_id', $donation_id);
+    give_update_meta( $donation_id, '_chip_purchase_id', $payment['id'], '', 'donation' );
 
     if ( give_is_test_mode() ) {
       give_insert_payment_note( $donation_id, __('This is test environment where payment status is simulated.', 'chip-for-givewp') );

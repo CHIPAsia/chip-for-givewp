@@ -2,8 +2,8 @@
 Contributors: chipasia, wanzulnet
 Tags: chip
 Requires at least: 4.7
-Tested up to: 6.1
-Stable tag: 1.0.3
+Tested up to: 6.3
+Stable tag: 1.1.0
 Requires PHP: 7.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,7 +14,12 @@ CHIP - Better Payment & Business Solutions. Securely accept payment with CHIP fo
 
 This is an official CHIP plugin for GiveWP.
 
-CHIP is a payment and business solutions platform that allow you to securely sell your products and get paid via multiple local and international payment methods.
+CHIP is a comprehensive Digital Finance Platform specifically designed to support and empower Micro, Small and Medium Enterprises (MSMEs). We provide a suite of solutions encompassing payment collection, expense management, risk mitigation, and treasury management.
+
+Our aim is to help businesses streamline their financial processes, reduce
+operational complexity, and drive growth.
+
+With CHIP, you gain a financial partner committed to simplifying, digitizing, and enhancing your financial operations for ultimate success.
 
 This plugin will enable your GiveWP site to be integrated with CHIP as per documented in [API Documentation](https://developer.chip-in.asia/api#online_purchases_custom_payment_flow_direct_post).
 
@@ -26,6 +31,9 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 * Give donation page list.
 
 == Changelog ==
+
+= 1.1.0 - 2023-10-27 =
+* Changed - Now the redirection will not rely on session. Instead it will rely on meta.
 
 = 1.0.3 - 2023-03-08 =
 * Fixed - Donator seeing donation failed page when there is previous failed attempt.
