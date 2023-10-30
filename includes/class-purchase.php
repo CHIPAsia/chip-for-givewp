@@ -180,6 +180,8 @@ class Chip_Givewp_Purchase {
       $params['client']['zip_code']       = $payment_data['post_data']['card_zip'] ?? '10000';
       $params['client']['state']          = substr($payment_data['post_data']['card_state'], 0, 2) ?? 'KL';
     }
+
+    $params = apply_filters( 'gwp_chip_purchase_params', $params, $payment_data, $this );
     
     $chip = Chip_Givewp_API::get_instance($secret_key, $brand_id);
     $payment = $chip->create_payment($params);
