@@ -151,10 +151,10 @@ class Chip_Givewp_Listener {
       give_die( __('Unexpected response', 'chip-for-givewp') );
     }
 
-    if ( give_get_payment_key( $donation_id ) != $payment['reference'] ) {
-      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Purchase key does not match!', 'chip-for-givewp'), $payment );
-      give_die( __('Purchase key does not match!', 'chip-for-givewp'));
-    }
+    // if ( give_get_payment_key( $donation_id ) != $payment['reference'] ) {
+    //   Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Purchase key does not match!', 'chip-for-givewp'), $payment );
+    //   give_die( __('Purchase key does not match!', 'chip-for-givewp'));
+    // }
 
     if ( give_get_payment_total( $donation_id ) != round($payment['purchase']['total'] / 100, give_get_price_decimals( $donation_id )) ) {
       Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Payment total does not match!', 'chip-for-givewp'), $payment );

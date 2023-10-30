@@ -34,6 +34,7 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 = 1.1.0 - 2023-10-27 =
 * Changed - Now the redirection will not rely on session. Instead it will rely on meta.
+* Changed - Now reference is set to donation id instead of payment_key
 
 = 1.0.3 - 2023-03-08 =
 * Fixed - Donator seeing donation failed page when there is previous failed attempt.

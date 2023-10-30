@@ -152,7 +152,7 @@ class Chip_Givewp_Purchase {
       'success_redirect' => $listener->get_redirect_url( array('donation_id' => $donation_id, 'nonce' => $payment_data['gateway_nonce']) ),
       'failure_redirect' => $listener->get_redirect_url( array('donation_id' => $donation_id, 'status' => 'error') ),
       'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
-      'reference'        => $payment_data['purchase_key'],
+      'reference'        => substr($donation_id,0,128),
       'platform'         => 'givewp',
       'send_receipt'     => give_is_setting_enabled( $send_receipt ),
       'due'              => time() + (absint( $due_strict_timing ) * 60),
