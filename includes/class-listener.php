@@ -93,23 +93,9 @@ class Chip_Givewp_Listener {
       exit;
     }
 
-    $payment_id = Give()->session->get( 'chip_id' );
-    $session_donation_id = Give()->session->get( 'donation_id' );
+    $payment_id = give_get_meta( $donation_id, '_chip_purchase_id', true, false, 'donation' );
 
-    if ( $payment_id ) {
-      Give()->session->set( 'chip_id', false );
-    }
-
-    if ( $session_donation_id ) {
-      Give()->session->set( 'donation_id', false );
-    }
-
-    if ( !empty($session_donation_id) && $donation_id != $session_donation_id) {
-      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'Session donation not match with donation id!', 'chip-for-givewp' ) );
-      give_die( __('Session donation not match with donation id!', 'chip-for-givewp') );
-    }
-
-    if ( empty($payment_id) && isset($_SERVER['HTTP_X_SIGNATURE']) ) {
+    if ( isset($_SERVER['HTTP_X_SIGNATURE']) ) {
       $form_id = give_get_payment_form_id( $donation_id );
       $customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
       
@@ -165,10 +151,10 @@ class Chip_Givewp_Listener {
       give_die( __('Unexpected response', 'chip-for-givewp') );
     }
 
-    if ( give_get_payment_key( $donation_id ) != $payment['reference'] ) {
-      Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Purchase key does not match!', 'chip-for-givewp'), $payment );
-      give_die( __('Purchase key does not match!', 'chip-for-givewp'));
-    }
+    // if ( give_get_payment_key( $donation_id ) != $payment['reference'] ) {
+    //   Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Purchase key does not match!', 'chip-for-givewp'), $payment );
+    //   give_die( __('Purchase key does not match!', 'chip-for-givewp'));
+    // }
 
     if ( give_get_payment_total( $donation_id ) != round($payment['purchase']['total'] / 100, give_get_price_decimals( $donation_id )) ) {
       Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __('Payment total does not match!', 'chip-for-givewp'), $payment );

@@ -152,7 +152,7 @@ class Chip_Givewp_Purchase {
       'success_redirect' => $listener->get_redirect_url( array('donation_id' => $donation_id, 'nonce' => $payment_data['gateway_nonce']) ),
       'failure_redirect' => $listener->get_redirect_url( array('donation_id' => $donation_id, 'status' => 'error') ),
       'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
-      'reference'        => $payment_data['purchase_key'],
+      'reference'        => substr($donation_id,0,128),
       'platform'         => 'givewp',
       'send_receipt'     => give_is_setting_enabled( $send_receipt ),
       'due'              => time() + (absint( $due_strict_timing ) * 60),
@@ -180,6 +180,8 @@ class Chip_Givewp_Purchase {
       $params['client']['zip_code']       = $payment_data['post_data']['card_zip'] ?? '10000';
       $params['client']['state']          = substr($payment_data['post_data']['card_state'], 0, 2) ?? 'KL';
     }
+
+    $params = apply_filters( 'gwp_chip_purchase_params', $params, $payment_data, $this );
     
     $chip = Chip_Givewp_API::get_instance($secret_key, $brand_id);
     $payment = $chip->create_payment($params);
@@ -194,8 +196,7 @@ class Chip_Givewp_Purchase {
 
     Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s', 'chip-for-givewp' ), $donation_id), $payment );
 
-    Give()->session->set('chip_id', $payment['id']);
-    Give()->session->set('donation_id', $donation_id);
+    give_update_meta( $donation_id, '_chip_purchase_id', $payment['id'], '', 'donation' );
 
     if ( give_is_test_mode() ) {
       give_insert_payment_note( $donation_id, __('This is test environment where payment status is simulated.', 'chip-for-givewp') );

@@ -3,8 +3,8 @@
 /**
  * Plugin Name: CHIP for GiveWP
  * Plugin URI: https://wordpress.org/plugins/chip-for-givewp/
- * Description: CHIP - Better Payment & Business Solutions
- * Version: 1.0.3
+ * Description: CHIP - Digital Finance Platform
+ * Version: 1.1.0
  * Author: Chip In Sdn Bhd
  * Author URI: https://www.chip-in.asia
  *
@@ -13,7 +13,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'GWP_CHIP_MODULE_VERSION', 'v1.0.3');
+define( 'GWP_CHIP_MODULE_VERSION', 'v1.1.0');
 
 class Chip_Givewp {
 
