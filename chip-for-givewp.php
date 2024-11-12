@@ -4,16 +4,16 @@
  * Plugin Name: CHIP for GiveWP
  * Plugin URI: https://wordpress.org/plugins/chip-for-givewp/
  * Description: CHIP - Digital Finance Platform
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Chip In Sdn Bhd
  * Author URI: https://www.chip-in.asia
  *
- * Copyright: © 2023 CHIP
+ * Copyright: © 2024 CHIP
  * License: GNU General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'GWP_CHIP_MODULE_VERSION', 'v1.1.0');
+define( 'GWP_CHIP_MODULE_VERSION', 'v1.2.0');
 
 class Chip_Givewp {
 
@@ -53,6 +53,9 @@ class Chip_Givewp {
 
     include $includes_dir . 'class-listener.php';
     include $includes_dir . 'class-purchase.php';
+
+    // Add block support
+    include $includes_dir . 'block/chip-givewp-block.php';
   }
 
   public function add_filters() {
