@@ -32,6 +32,30 @@ class Chip_Givewp {
     $this->includes();
     $this->add_filters();
     $this->add_actions();
+
+    // add_action('plugins_loaded', function() {
+    //   // Still wait for GiveWP to load first
+    //   if (class_exists('Give')) {
+
+    //       // Get the gateways v3
+    //       $gateway_v3 = give_get_option('gateways_v3', []);
+    //       $gateway_v3['chip'] = 'Online Banking/Credit Card';
+            
+    //       // Update gateway_v3
+    //       // give_update_option('gateway_v3', $gateway_v3 );
+
+    //       // Get gateway v3 label
+    //       $gateway_b3_labels = give_get_option('gateways_label_v3', []);
+
+    //       $gateway_b3_labels['chip'] = 1;
+
+    //       // Update gateway v3 label
+    //       // give_update_option('gateways_label_v3', $gateway_v3 );
+    //   } else {
+    //     error_log('Give class exists but not loaded');
+    //   }
+    // }, 20);
+    
   }
 
   public function define() {
