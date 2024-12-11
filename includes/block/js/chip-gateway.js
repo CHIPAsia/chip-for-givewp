@@ -37,14 +37,14 @@
     };
   
     /**
-     * Example of rendering gateway fields (without jsx).
+     * Rendering gateway fields (without jsx).
      *
      * This renders a simple div with a label and input.
      *
      * @see https://react.dev/reference/react/createElement
      */
     function ChipGatewayFields() {
-      return ReactElement("span", null,  __("You will be redirected to CHIP Payment Gateway.", "chip-give"));
+      return ReactElement("span", null,  __("You will be redirected to CHIP Payment Gateway.", "chip-for-givewp"));
       // return window.wp.element.createElement(
       //   "div",
       //   {},
@@ -68,7 +68,7 @@
     }
   
     /**
-     * Example of a front-end gateway object.
+     * Front-end gateway object.
      */
     const ChipGateway = {
       id: 'chip_block',
@@ -92,7 +92,7 @@
       //   // } catch (error) {
       //   //     console.error('CHIP payment creation failed:', error);
       //   //     throw new Error(
-      //   //         __('Failed to process CHIP payment. Please try again.', 'chip-give')
+      //   //         __('Failed to process CHIP payment. Please try again.', 'chip-for-givewp')
       //   //     );
       //   // }
 
