@@ -102,12 +102,6 @@ class Chip_Givewp_Listener {
       }
     }
 
-    // If chip_block
-    // if ( $payment_gateway != 'chip_block' ) {
-    //   Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'Processing halted as payment gateway is not chip', 'chip-for-givewp' ) );
-    //   exit;
-    // }
-
     $payment_id = give_get_meta( $donation_id, '_chip_purchase_id', true, false, 'donation' );
 
     if ( isset($_SERVER['HTTP_X_SIGNATURE']) ) {
@@ -218,9 +212,6 @@ class Chip_Givewp_Listener {
     );
 
     Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __('Processing completed', 'chip-for-givewp'), $payment );
-
-    // Redirecto to success page
-    // give_send_to_success_page();
 
     wp_safe_redirect( $return );
     exit;
