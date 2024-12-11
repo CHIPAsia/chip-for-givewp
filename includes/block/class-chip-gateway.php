@@ -3,8 +3,18 @@ use Give\Framework\PaymentGateways\Commands\PaymentComplete;
 use Give\Framework\PaymentGateways\PaymentGateway;
 use Give\Donations\Models\Donation;
 use Give\Framework\PaymentGateways\Commands\GatewayCommand;
+use Give\Donations\Models\DonationNote;
+use Give\Donations\ValueObjects\DonationStatus;
+use Give\Framework\Exceptions\Primitives\Exception;
+use Give\Framework\Http\Response\Types\RedirectResponse;
+use Give\Framework\PaymentGateways\Commands\PaymentRefunded;
+use Give\Framework\PaymentGateways\Commands\RedirectOffsite;
+use Give\Framework\PaymentGateways\Exceptions\PaymentGatewayException;
+use Give\Log\ValueObjects\LogType;
 
-class ChipGateway extends PaymentGateway {
+class ChipGateway extends PaymentGateway 
+{
+  private $debug;
 
   private static bool $scriptLoaded = false;
 
@@ -17,12 +27,11 @@ class ChipGateway extends PaymentGateway {
 	}
 
 	public function getName(): string {
-    // error_log('In getName()');
-		return __( 'CHIP', 'chip-give' );
+		return __( 'CHIP', 'chip-for-givewp' );
 	}
 
 	public function getPaymentMethodLabel(): string {
-		return __( 'CHIP', 'chip-give' );
+		return __( 'CHIP', 'chip-for-givewp' );
 	}
 
 	/**
@@ -53,11 +62,6 @@ class ChipGateway extends PaymentGateway {
     // Set scriptLoaded to TRUE
     self::$scriptLoaded = true;
 
-    error_log(plugin_dir_url( __FILE__ ) .'js/chip-gateway.js');
-
-
-    // error_log('formId: ' . $formId);
-    // wp_enqueue_script('chip-gateway', plugin_dir_url( __FILE__ ) .'js/chip-gateway.js', ['react', 'wp-element'], '1.0.0', true);
     wp_enqueue_script(
       $handle,
       plugin_dir_url( __FILE__ ) .'js/chip-gateway.js', 
@@ -73,69 +77,117 @@ class ChipGateway extends PaymentGateway {
     // }
   }
 
-  /**
-   * Send form settings to the js gateway counterpart
-   */
-	public function formSettings( int $formId ): array {
-		return [ 
-      'clientKey' => '1234567890'
-			// 'formId' => $formId,
-		];
-	}
+  public function createPayment( Donation $donation, $gatewayData ): RedirectOffsite {
 
-  public function createPayment( Donation $donation, $gatewayData ): GatewayCommand {
-    // die();
-    // error_log('Create payment from GiveWP V3');
-    // exit;
+  try {
+    $give_settings = give_get_settings();
 
-    $intent =  $gatewayDaya['chipGatewayIntent'] ?? 'chip-gateway-intent';
+    $form_id = $donation->formId;
+    
+    $customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
 
-    return new PaymentComplete( "chip-gateway-transaction-id-{$intent}-$donation->id");
+    $prefix = '';
+    if ( give_is_setting_enabled( $customization ) ) {
+      $prefix = '_give_';
+    }
 
+    // Assign data
+    $secret_key        = give_is_test_mode() ? Chip_Givewp_Helper::get_fields($form_id, 'chip-test-secret-key', $prefix) : Chip_Givewp_Helper::get_fields($form_id, 'chip-secret-key', $prefix);
+    $due_strict        = Chip_Givewp_Helper::get_fields($form_id, 'chip-due-strict', $prefix);
+    $due_strict_timing = Chip_Givewp_Helper::get_fields($form_id, 'chip-due-strict-timing', $prefix);
+    $send_receipt      = Chip_Givewp_Helper::get_fields($form_id, 'chip-send-receipt', $prefix);
+    $brand_id          = Chip_Givewp_Helper::get_fields($form_id, 'chip-brand-id', $prefix);
+    $billing_fields    = Chip_Givewp_Helper::get_fields($form_id, 'chip-enable-billing-fields', $prefix );
+    $currency        = give_get_currency( $form_id );
 
-    // try {
-    //     // Step 1: Validate any data passed from the gateway fields in $gatewayData.  Throw the PaymentGatewayException if the data is invalid.
-    //     if (empty($gatewayData['chip-gateway-id'])) {
-    //         throw new PaymentGatewayException(__('CHIP payment ID is required.', 'chip-give' ) );
-    //     }
+    // Instantiate Chip_Givewp_API
+    $chip = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
 
-    //     // Step 2: Create a payment with your gateway.
-    //     $response = $this->chipRequest(['transaction_id' => $gatewayData['chip-gateway-id']]);
+    // Instantiate listener 
+    $listener = Chip_Givewp_Listener::get_instance();
 
-    //     // Step 3: Return a command to complete the donation. You can alternatively return PaymentProcessing for gateways that require a webhook or similar to confirm that the payment is complete. PaymentProcessing will trigger a Payment Processing email notification, configurable in the settings.
-    //     return new PaymentComplete($response['transaction_id']);
-    // } catch (Exception $e) {
-    //     // Step 4: If an error occurs, you can update the donation status to something appropriate like failed, and finally throw the PaymentGatewayException for the framework to catch the message.
-    //     $errorMessage = $e->getMessage();
+    // $listener->get_redirect_url( array('donation_id' => $donation->id, 'nonce' => $payment_data['gateway_nonce']) );
 
-    //     $donation->status = DonationStatus::FAILED();
-    //     $donation->save();
+    // Assign parameter
+    $params = array(
+      'success_callback' => $listener->get_callback_url( array('donation_id' => $donation->id, 'status' => 'paid') ),
+      // 'success_callback' => 'https://webhook.site/07db2eba-a2f4-4319-9e1d-935ea641abd8', // $listener->get_callback_url( array('donation_id' => $donation->id, 'status' => 'paid') ),
+      'success_redirect' => $listener->get_redirect_url( array('donation_id' => $donation->id )),
+      // 'success_redirect' => urldecode($gatewayData['successUrl']), //$listener->get_redirect_url( array('donation_id' => $donation_id, 'nonce' => $payment_data['gateway_nonce']) ),
+      'failure_redirect' => $listener->get_redirect_url( array('donation_id' => $donation->id, 'status' => 'error') ),
+      'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
+      'reference'        => substr($donation->id,0,128),
+      'platform'         => 'givewp',
+      'send_receipt'     => give_is_setting_enabled( $send_receipt ),
+      'due'              => time() + (absint( $due_strict_timing ) * 60),
+      'brand_id'         => $brand_id,
+      'client'           => [
+        'email'          => $donation->email,
+        'full_name'      => substr($donation->firstName . ' ' . $donation->lastName, 0, 30),
+      ],
+      'purchase'         => array(
+        'timezone'   => apply_filters( 'gwp_chip_purchase_timezone', $this->get_timezone() ),
+        'currency'   => $currency,
+        'due_strict' => give_is_setting_enabled( $due_strict ),
+        'products'   => array([
+          'name'     => substr( $donation->formTitle , 0, 256), //substr(give_payment_gateway_item_title($payment_data), 0, 256),
+          'price'    => round($donation->amount->getAmount()),
+          'quantity' => '1',
+        ]),
+      ),
+    );
 
-    //     DonationNote::create([
-    //         'donationId' => $donation->id,
-    //         'content' => sprintf(esc_html__('Donation failed. Reason: %s', 'chip-give'), $errorMessage)
-    //     ]);
+    // $params = apply_filters( 'gwp_chip_purchase_params', $params, $payment_data, $this );
 
-    //     throw new PaymentGatewayException($errorMessage);
-    // }
+    $payment = $chip->create_payment($params);
+
+    if (!array_key_exists('id', $payment)) {
+      
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), print_r($payment, true)) );
+
+      give_insert_payment_note( $donation->id, __('Failed to create purchase.', 'chip-for-givewp') );
+      give_send_back_to_checkout( '?payment-mode=chip' );
+    }
+
+    // DonationNote::create([
+    //     'donationId' => $donation->id,
+    //     // 'content' => 'Donation Completed from CHIP.'
+    //     'content' => 'Testing Donation Note, Succes!'
+    // ]);
+
+    Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s', 'chip-for-givewp' ), $donation->id), $payment );
+
+    give_update_meta( $donation->id, '_chip_purchase_id', $payment['id'], '', 'donation' );
+
+    if ( give_is_test_mode() ) {
+      give_insert_payment_note( $donation->id, __('This is test environment where payment status is simulated.', 'chip-for-givewp') );
+    }
+    give_insert_payment_note( $donation->id, sprintf( __('URL: %1$s', 'chip-for-givewp'), $payment['checkout_url']) );
+
+    return new RedirectOffsite($payment['checkout_url']);
+  }
+    catch (\Exception $e) {
+			$log_message = $e->getMessage();
+      error_log(print_r($log_message, true));
+
+			$status_message = __('CHIP: Something went wrong, please contact the merchant', 'chip-for-givewp');
+			throw new PaymentGatewayException($status_message);
+		}
 	}
 
 	public function refundDonation( Donation $donation ) {
+    // 
 	}
 
-	// public function supportsFormVersions(): array {
-	// 	return [ 3 ];
-	// }
-
   /**
-   * CHIP request to gateway
+   * Get Timezone
+   * @return string
    */
-  private function chipRequest(array $data): array
-    {
-        return array_merge([
-            'success' => true,
-            'transaction_id' => '1234567890',
-            'subscription_id' => '0987654321',
-        ], $data);
+  private function get_timezone() {
+    if (preg_match('/^[A-z]+\/[A-z\_\/\-]+$/', wp_timezone_string())) {
+      return wp_timezone_string();
     }
+
+    return 'UTC';
+  }
 }
