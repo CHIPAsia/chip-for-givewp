@@ -71,12 +71,12 @@ class Chip_Givewp_Refund_Button {
 
     if ( ! current_user_can( 'edit_give_payments', $donation_id ) ) {
       Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'User didn\'t have permission to refund payment', 'chip-for-givewp' ) );
-      wp_die( __( 'You do not have permission to refund payments.', 'chip-for-givewp' ), __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
+      wp_die( esc_html__( 'You do not have permission to refund payments.', 'chip-for-givewp' ), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
     }
 
     if ( !give_is_payment_complete( $donation_id ) ) {
       Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'Donation is not in completed state.', 'chip-for-givewp' ) );
-      wp_die( __( 'Donation is not in completed state.', 'chip-for-givewp' ), __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
+      wp_die( esc_html__( 'Donation is not in completed state.', 'chip-for-givewp' ), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
     }
 
     $form_id       = give_get_payment_form_id( $donation_id );
@@ -95,9 +95,9 @@ class Chip_Givewp_Refund_Button {
 
     if ( !is_array($payment) || !array_key_exists('id', $payment) ) {
       /* translators: Return from CHIP refund_payment API. */
-      $msg = sprintf( __('There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode($payment, true));
+      $msg = sprintf( esc_html__('There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode($payment, true));
       Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $msg );
-      wp_die( $msg, __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
+      wp_die( esc_html($msg), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
     }
 
     Chip_Givewp_Helper::log( $donation_id, LogType::HTTP, __('Payment refunded.', 'chip-for-givewp'), $payment );
