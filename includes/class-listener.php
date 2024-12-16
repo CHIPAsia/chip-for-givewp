@@ -68,10 +68,12 @@ class Chip_Givewp_Listener {
     }
 
     if ($_GET[self::CALLBACK_KEY] != $passphrase) {
+      /* translators: 1: Callback failed */
       Chip_Givewp_Helper::log( null, LogType::NOTICE, __( 'Callback failed due to invalid passphrase: %1$s', 'chip-for-givewp' ) );
       return;
     }
 
+    /* translators: Callback received */
     Chip_Givewp_Helper::log( null, LogType::INFO, __( 'Callback received', 'chip-for-givewp' ) );
 
     $this->handle_processing();

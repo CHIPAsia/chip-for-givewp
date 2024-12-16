@@ -118,12 +118,14 @@ class ChipGateway extends PaymentGateway {
 
 			if ( ! array_key_exists( 'id', $payment ) ) {
 
+				/* translators: CHIP create_payment API response */
 				Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), print_r( $payment, true ) ) );
 
 				give_insert_payment_note( $donation->id, __( 'Failed to create purchase.', 'chip-for-givewp' ) );
 				give_send_back_to_checkout( '?payment-mode=chip' );
 			}
 
+			/* translators: 1: Donation ID */
 			Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s', 'chip-for-givewp' ), $donation->id ), $payment );
 
 			give_update_meta( $donation->id, '_chip_purchase_id', $payment['id'], '', 'donation' );
@@ -131,6 +133,7 @@ class ChipGateway extends PaymentGateway {
 			if ( give_is_test_mode() ) {
 				give_insert_payment_note( $donation->id, __( 'This is test environment where payment status is simulated.', 'chip-for-givewp' ) );
 			}
+			/* translators: 1: CHIP Checkout URL */
 			give_insert_payment_note( $donation->id, sprintf( __( 'URL: %1$s', 'chip-for-givewp' ), $payment['checkout_url'] ) );
 
 			return new RedirectOffsite( $payment['checkout_url'] );
@@ -150,6 +153,7 @@ class ChipGateway extends PaymentGateway {
 		$payment_id = $donation->gatewayTransactionId;
 
 		// Refund initiated note
+		/* translators: 1: CHIP Transaction ID */
 		give_insert_payment_note( $donation_id, sprintf( __( 'Refund initiated for CHIP transaction ID: %1$s', 'chip-for-givewp' ), $payment_id ) );
 
 		try {
@@ -176,6 +180,7 @@ class ChipGateway extends PaymentGateway {
 
 			// CHIP refund unsucessful
 			if ( ! is_array( $payment ) || ! array_key_exists( 'id', $payment ) ) {
+				/* translators: CHIP refund_payment API response */
 				$msg = sprintf( __( 'There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), print_r( $payment, true ) );
 				Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $msg );
 				wp_die( $msg, __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
@@ -190,6 +195,7 @@ class ChipGateway extends PaymentGateway {
 				array(
 					'comment_parent' => $donation_id,
 					'user_id' => get_current_user_id(),
+					/* translators: CHIP Refund Transaction ID */
 					'comment_content' => sprintf( __( 'Donation has been refunded with ID: %s', 'chip-for-givewp' ), $payment['id'] ),
 					'comment_type' => 'donation',
 				)

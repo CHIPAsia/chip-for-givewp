@@ -94,7 +94,8 @@ class Chip_Givewp_Refund_Button {
     $payment = $chip->refund_payment( $payment_id );
 
     if ( !is_array($payment) || !array_key_exists('id', $payment) ) {
-      $msg = sprintf( __('There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), print_r($payment, true));
+      /* translators: Return from CHIP refund_payment API. */
+      $msg = sprintf( __('There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode($payment, true));
       Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $msg );
       wp_die( $msg, __( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
     }
@@ -107,6 +108,7 @@ class Chip_Givewp_Refund_Button {
       array(
         'comment_parent'  => $donation_id,
         'user_id'         => get_current_user_id(),
+        /* translators: CHIP Transaction ID for Refund transaction. */
         'comment_content' => sprintf( __('Donation has been refunded with ID: %s', 'chip-for-givewp' ), $payment['id'] ),
         'comment_type'    => 'donation',
       )

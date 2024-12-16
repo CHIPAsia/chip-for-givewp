@@ -96,6 +96,7 @@ class Chip_Givewp_Purchase {
 
     if ( $donation_amount < 1 ) {
 
+      /* translators: Donation Amount */
       Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Amount to be paid is less than 1. The amount to be paid is %s.', 'chip-for-givewp' ), $donation_amount ), $payment_data );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
@@ -103,6 +104,7 @@ class Chip_Givewp_Purchase {
 
     if ( $currency != 'MYR' ) {
 
+      /* translators: Currency */
       Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ), $payment_data );
 
       give_send_back_to_checkout( '?payment-mode=chip' );
@@ -187,13 +189,14 @@ class Chip_Givewp_Purchase {
     $payment = $chip->create_payment($params);
 
     if (!array_key_exists('id', $payment)) {
-      
-      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), print_r($payment, true)) );
+      /* translators: CHIP create_payment response */
+      Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), wp_json_encode($payment, true)) );
 
       give_insert_payment_note( $donation_id, __('Failed to create purchase.', 'chip-for-givewp') );
       give_send_back_to_checkout( '?payment-mode=chip' );
     }
 
+    /* translators: Donation ID */
     Chip_Givewp_Helper::log( $form_id, LogType::HTTP, sprintf( __( 'Create purchases success for donation id %1$s', 'chip-for-givewp' ), $donation_id), $payment );
 
     give_update_meta( $donation_id, '_chip_purchase_id', $payment['id'], '', 'donation' );
@@ -201,6 +204,7 @@ class Chip_Givewp_Purchase {
     if ( give_is_test_mode() ) {
       give_insert_payment_note( $donation_id, __('This is test environment where payment status is simulated.', 'chip-for-givewp') );
     }
+    /* translators: 1: CHIP Checkout URL */
     give_insert_payment_note( $donation_id, sprintf( __('URL: %1$s', 'chip-for-givewp'), $payment['checkout_url']) );
     
     wp_redirect( esc_url_raw( apply_filters( 'gwp_chip_checkout_url', $payment['checkout_url'], $payment, $payment_data ) ) );
