@@ -45,7 +45,7 @@ class Chip_Givewp_Refund_Button {
     ?>
     <div class="give-order-tx-id give-admin-box-inside">
       <p>
-        <button id="chip-refund-button" class="button button-primary" data-nonce="<?php echo wp_create_nonce( 'gwp_chip_refund_payment' ); ?>" data-donation-id="<?php echo esc_attr( $donation_id ); ?>"><?php _e( 'Refund', 'chip-for-givewp' ); ?></button>
+        <button id="chip-refund-button" class="button button-primary" data-nonce="<?php echo esc_attr(wp_create_nonce( 'gwp_chip_refund_payment' )); ?>" data-donation-id="<?php echo esc_attr( $donation_id ); ?>"><?php esc_html_e( 'Refund', 'chip-for-givewp' ); ?></button>
       </p>
     </div>
     <?php
@@ -62,7 +62,7 @@ class Chip_Givewp_Refund_Button {
 
     check_admin_referer( 'gwp_chip_refund_payment', 'gwp_chip_refund_payment' );
 
-    $donation_id = absint( $_POST['donation_id'] );
+    $donation_id = absint( $_POST['donation_id'] ?? 0 );
 
     if ( empty( $donation_id ) ) {
       Chip_Givewp_Helper::log( null, LogType::ERROR, __( 'Donation ID was empty', 'chip-for-givewp' ) );
