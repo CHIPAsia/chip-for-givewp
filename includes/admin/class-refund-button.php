@@ -116,7 +116,7 @@ class Chip_Givewp_Refund_Button {
 
     do_action( 'give_donor-note_email_notification', $note_id, $donation_id );
     
-    die( give_get_payment_note_html( $note_id ) );
+    die( esc_html(give_get_payment_note_html( $note_id )) );
   }
 }
 

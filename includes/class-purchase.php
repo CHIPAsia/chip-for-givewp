@@ -28,13 +28,13 @@ class Chip_Givewp_Purchase {
     do_action( 'give_before_chip_info_fields', $form_id );
     ?>
     <fieldset class="no-fields" id="give_chip_payment_info">
-      <?php echo stripslashes( wp_kses_post( $instructions ) ); ?>
+      <?php echo esc_html(stripslashes( wp_kses_post( $instructions )) ); ?>
     </fieldset>
     <?php
 
     do_action( 'give_after_chip_info_fields', $form_id );
   
-    echo ob_get_clean();
+    echo esc_html(ob_get_clean());
   }
 
   private function get_instructions( $form_id, $wpautop = false ) {

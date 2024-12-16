@@ -66,7 +66,7 @@ class Chip_Givewp_API
   {
     $secret_key = $this->secret_key;
     if (!empty($params)) {
-      $params = json_encode($params);
+      $params = wp_json_encode($params);
     }
 
     $response = $this->request(
