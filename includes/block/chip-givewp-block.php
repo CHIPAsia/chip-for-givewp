@@ -9,13 +9,10 @@ class Chip_Givewp_Block {
     return static::$_instance;
   }
   public function __construct(){
-    $this->includes();
     $this->add_actions();
     $this->add_filters();
   }
-  public function includes() {
-    error_log('CHIP Block running');
-  }
+  
   public function add_actions() {
     add_action('givewp_register_payment_gateway', static function (PaymentGatewayRegister $registrar) {
       
