@@ -117,6 +117,7 @@ class ChipGateway extends PaymentGateway {
 			$payment = $chip->create_payment( $params );
 
 			if ( ! array_key_exists( 'id', $payment ) ) {
+				/* translators: Response from CHIP */
 				throw new Exception(sprintf(__('CHIP: Something went wrong, please contact the merchant %s', 'chip-for-givewp'), wp_json_encode($payment)));
 			}
 
@@ -131,13 +132,10 @@ class ChipGateway extends PaymentGateway {
 			/* translators: 1: CHIP Checkout URL */
 			give_insert_payment_note( $donation->id, sprintf( __( 'URL: %1$s', 'chip-for-givewp' ), $payment['checkout_url'] ) );
 
-			// $this->log($payment['checkout_url']);
-
 			return new RedirectOffsite( $payment['checkout_url'] );
 		} catch (\Exception $e) {
 			// When debug mode, display details
-			if (WP_DEBUG)
-			{
+			if (WP_DEBUG) {
 				$status_message = $e->getMessage();
 			} else {
 				$status_message = esc_html__('CHIP: Something went wrong, please contact the merchant', 'chip-for-givewp' );
@@ -164,7 +162,6 @@ class ChipGateway extends PaymentGateway {
 			// Get settings for CHIP
 			$give_settings = give_get_settings();
 
-			$form_id = $donation->formId;
 			$secret_key = give_is_test_mode() ? $give_settings['chip-test-secret-key'] : $give_settings['chip-secret-key'];
 			$brand_id = $give_settings['chip-brand-id'];
 
@@ -187,7 +184,6 @@ class ChipGateway extends PaymentGateway {
 				wp_die( esc_html($msg), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
 			}
 
-			// 
 			Chip_Givewp_Helper::log( $donation_id, LogType::HTTP, __( 'Payment refunded.', 'chip-for-givewp' ), $payment );
 
 			give_update_payment_status( $donation_id, 'refunded' );
@@ -225,22 +221,5 @@ class ChipGateway extends PaymentGateway {
 		}
 
 		return 'UTC';
-	}
-
-	private function log($content)
-	{
-		// $debug = $this->debug;
-		// if ($debug == 'yes') {
-			$file = WP_CONTENT_DIR .'/debug.log';
-			try {
-				$fp = fopen($file, 'a+');
-				if ($fp) {
-					fwrite($fp, "\n");
-					fwrite($fp, date("Y-m-d H:i:s").": ");
-					fwrite($fp, print_r($content, true));
-					fclose($fp);
-				}
-			} catch (\Exception $e) {}
-		// }
 	}
 }
