@@ -87,12 +87,14 @@ class Chip_Givewp {
   }
 
   public function filter_gateway( $gateway_list, $form_id ) {
-    if (
-      ( false === strpos( $_SERVER['REQUEST_URI'], '/wp-admin/post-new.php?post_type=give_forms' ) )
-      && $form_id
-      && ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' ), [ 'enabled', 'global' ] )
-    ) {
-      unset( $gateway_list['chip'] );
+    if ( isset($_SERVER['REQUEST_URI'])) {
+      if (
+        ( false === strpos( sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])), '/wp-admin/post-new.php?post_type=give_forms' ) )
+        && $form_id
+        && ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' ), [ 'enabled', 'global' ] )
+      ) {
+        unset( $gateway_list['chip'] );
+      }
     }
 
     return $gateway_list;
