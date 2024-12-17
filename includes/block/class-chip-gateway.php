@@ -141,7 +141,7 @@ class ChipGateway extends PaymentGateway {
 			$log_message = $e->getMessage();
 
 			$status_message = esc_html__( 'CHIP: Something went wrong, please contact the merchant', 'chip-for-givewp' );
-			throw new PaymentGatewayException( esc_html($status_message) );
+			throw new PaymentGatewayException( esc_html( $status_message ) );
 		}
 	}
 
@@ -182,7 +182,7 @@ class ChipGateway extends PaymentGateway {
 				/* translators: CHIP refund_payment API response */
 				$msg = sprintf( __( 'There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode( $payment, true ) );
 				Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $msg );
-				wp_die( esc_html($msg), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
+				wp_die( esc_html( $msg ), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
 			}
 
 			// 
@@ -204,7 +204,7 @@ class ChipGateway extends PaymentGateway {
 
 		} catch (\Exception $e) {
 			$message = $e->getMessage();
-			throw new Exception( esc_html($message) );
+			throw new Exception( esc_html( $message ) );
 		}
 
 		give_get_payment_note_html( $note_id );
