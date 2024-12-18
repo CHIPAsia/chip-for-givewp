@@ -1,0 +1,17 @@
+== Changelog ==
+
+= 1.1.0 - 2023-10-27 =
+* Changed - Now the redirection will not rely on session. Instead it will rely on meta.
+* Changed - Now reference is set to donation id instead of payment_key
+
+= 1.0.3 - 2023-03-08 =
+* Fixed - Donator seeing donation failed page when there is previous failed attempt.
+
+= 1.0.2 - 2023-02-17 =
+* Fixed - Form created before installing CHIP should adhere to global configuration.
+
+= 1.0.1 - 2022-11-30 =
+* Fixed - First and Last name should be separated with space.
+
+= 1.0.0 - 2022-11-29 =
+* New - Initial Release.
