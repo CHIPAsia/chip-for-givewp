@@ -1,10 +1,10 @@
 === CHIP for GiveWP ===
-Contributors: chipasia, wanzulnet
+Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
 Requires at least: 4.7
-Tested up to: 6.3
-Stable tag: 1.1.0
-Requires PHP: 7.1
+Tested up to: 6.7
+Stable tag: 1.2.0
+Requires PHP: 7.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -21,7 +21,7 @@ operational complexity, and drive growth.
 
 With CHIP, you gain a financial partner committed to simplifying, digitizing, and enhancing your financial operations for ultimate success.
 
-This plugin will enable your GiveWP site to be integrated with CHIP as per documented in [API Documentation](https://developer.chip-in.asia/api#online_purchases_custom_payment_flow_direct_post).
+This plugin will enable your GiveWP site to be integrated with CHIP as per documented in [API Documentation](https://docs.chip-in.asia).
 
 == Screenshots ==
 * Fill up the form with Brand ID and Secret Key. Tick Enable API and Save changes to activate.
@@ -32,21 +32,8 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 == Changelog ==
 
-= 1.1.0 - 2023-10-27 =
-* Changed - Now the redirection will not rely on session. Instead it will rely on meta.
-* Changed - Now reference is set to donation id instead of payment_key
-
-= 1.0.3 - 2023-03-08 =
-* Fixed - Donator seeing donation failed page when there is previous failed attempt.
-
-= 1.0.2 - 2023-02-17 =
-* Fixed - Form created before installing CHIP should adhere to global configuration.
-
-= 1.0.1 - 2022-11-30 =
-* Fixed - First and Last name should be separated with space.
-
-= 1.0.0 - 2022-11-29 =
-* New - Initial Release.
+= 1.2.0 - 2024-12-17 =
+* Added - Support GiveWP 3.0 Visual Donation Form Builder.
 
 == Installation ==
 
@@ -85,7 +72,7 @@ No.
 
 = Where can I find documentation? =
 
-You can visit our [API documentation](https://developer.chip-in.asia/) for your reference.
+You can visit our [API documentation](https://docs.chip-in.asia/) for your reference.
 
 = What CHIP API services used in this plugin? =
 
@@ -113,6 +100,6 @@ define( 'GWP_CHIP_DISABLE_REFUND_PAYMENT', true);
 
 [Privacy Policy](https://www.chip-in.asia/privacy-policy)
 
-[API Documentation](https://developer.chip-in.asia/)
+[API Documentation](https://docs.chip-in.asia/)
 
 [CHIP Merchants & DEV Community](https://www.facebook.com/groups/3210496372558088)
