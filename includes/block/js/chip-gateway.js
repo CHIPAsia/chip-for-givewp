@@ -30,7 +30,7 @@
     const ChipGateway = {
       id: 'chip_block',
       async beforeCreatePayment(values) {
-        console.log(values)
+        //console.log(values)
         return {
           chipGatewayIntent: 'chip-gateway-intent',
         };  
