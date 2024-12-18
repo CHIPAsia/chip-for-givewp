@@ -135,7 +135,7 @@ class ChipGateway extends PaymentGateway {
 			return new RedirectOffsite( $payment['checkout_url'] );
 		} catch (\Exception $e) {
 			// When debug mode, display details
-			if (WP_DEBUG) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				$status_message = $e->getMessage();
 			} else {
 				$status_message = esc_html__('CHIP: Something went wrong, please contact the merchant', 'chip-for-givewp' );
