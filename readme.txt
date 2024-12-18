@@ -1,5 +1,5 @@
 === CHIP for GiveWP ===
-Contributors: chipasia, wanzulnet
+Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
 Requires at least: 4.7
 Tested up to: 6.7
