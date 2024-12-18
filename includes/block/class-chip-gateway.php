@@ -62,58 +62,59 @@ class ChipGateway extends PaymentGateway {
 
 	public function createPayment( Donation $donation, $gatewayData ): RedirectOffsite {
 
+		$form_id = $donation->formId;
+
+		$customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
+
+		$prefix = '';
+		if ( give_is_setting_enabled( $customization ) ) {
+			$prefix = '_give_';
+		}
+
+		// Assign data
+		$secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
+		$due_strict = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict', $prefix );
+		$due_strict_timing = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict-timing', $prefix );
+		$send_receipt = Chip_Givewp_Helper::get_fields( $form_id, 'chip-send-receipt', $prefix );
+		$brand_id = Chip_Givewp_Helper::get_fields( $form_id, 'chip-brand-id', $prefix );
+		$billing_fields = Chip_Givewp_Helper::get_fields( $form_id, 'chip-enable-billing-fields', $prefix );
+		$currency = give_get_currency( $form_id );
+
+		// Instantiate Chip_Givewp_API
+		$chip = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
+
+		// Instantiate listener 
+		$listener = Chip_Givewp_Listener::get_instance();
+
+		// Assign parameter
+		$params = array(
+			'success_callback' => $listener->get_callback_url( array( 'donation_id' => $donation->id, 'status' => 'paid' ) ),
+			'success_redirect' => $listener->get_redirect_url( array( 'donation_id' => $donation->id ) ),
+			'failure_redirect' => $listener->get_redirect_url( array( 'donation_id' => $donation->id, 'status' => 'error' ) ),
+			'creator_agent' => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
+			'reference' => substr( $donation->id, 0, 128 ),
+			'platform' => 'givewp',
+			'send_receipt' => give_is_setting_enabled( $send_receipt ),
+			'due' => time() + ( absint( $due_strict_timing ) * 60 ),
+			'brand_id' => $brand_id,
+			'client' => [ 
+				'email' => $donation->email,
+				'full_name' => substr( $donation->firstName . ' ' . $donation->lastName, 0, 30 ),
+			],
+			'purchase' => array(
+				'timezone' => apply_filters( 'gwp_chip_purchase_timezone', $this->get_timezone() ),
+				'currency' => $currency,
+				'due_strict' => give_is_setting_enabled( $due_strict ),
+				'products' => array( [ 
+					'name' => substr( $donation->formTitle, 0, 256 ), //substr(give_payment_gateway_item_title($payment_data), 0, 256),
+					'price' => round( $donation->amount->getAmount() ),
+					'quantity' => '1',
+				] ),
+			),
+		);
+
+		// Try and catch response from CHIP
 		try {
-			$form_id = $donation->formId;
-
-			$customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
-
-			$prefix = '';
-			if ( give_is_setting_enabled( $customization ) ) {
-				$prefix = '_give_';
-			}
-
-			// Assign data
-			$secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
-			$due_strict = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict', $prefix );
-			$due_strict_timing = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict-timing', $prefix );
-			$send_receipt = Chip_Givewp_Helper::get_fields( $form_id, 'chip-send-receipt', $prefix );
-			$brand_id = Chip_Givewp_Helper::get_fields( $form_id, 'chip-brand-id', $prefix );
-			$billing_fields = Chip_Givewp_Helper::get_fields( $form_id, 'chip-enable-billing-fields', $prefix );
-			$currency = give_get_currency( $form_id );
-
-			// Instantiate Chip_Givewp_API
-			$chip = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
-
-			// Instantiate listener 
-			$listener = Chip_Givewp_Listener::get_instance();
-
-			// Assign parameter
-			$params = array(
-				'success_callback' => $listener->get_callback_url( array( 'donation_id' => $donation->id, 'status' => 'paid' ) ),
-				'success_redirect' => $listener->get_redirect_url( array( 'donation_id' => $donation->id ) ),
-				'failure_redirect' => $listener->get_redirect_url( array( 'donation_id' => $donation->id, 'status' => 'error' ) ),
-				'creator_agent' => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
-				'reference' => substr( $donation->id, 0, 128 ),
-				'platform' => 'givewp',
-				'send_receipt' => give_is_setting_enabled( $send_receipt ),
-				'due' => time() + ( absint( $due_strict_timing ) * 60 ),
-				'brand_id' => $brand_id,
-				'client' => [ 
-					'email' => $donation->email,
-					'full_name' => substr( $donation->firstName . ' ' . $donation->lastName, 0, 30 ),
-				],
-				'purchase' => array(
-					'timezone' => apply_filters( 'gwp_chip_purchase_timezone', $this->get_timezone() ),
-					'currency' => $currency,
-					'due_strict' => give_is_setting_enabled( $due_strict ),
-					'products' => array( [ 
-						'name' => substr( $donation->formTitle, 0, 256 ), //substr(give_payment_gateway_item_title($payment_data), 0, 256),
-						'price' => round( $donation->amount->getAmount() ),
-						'quantity' => '1',
-					] ),
-				),
-			);
-
 			$payment = $chip->create_payment( $params );
 
 			if ( ! array_key_exists( 'id', $payment ) ) {
