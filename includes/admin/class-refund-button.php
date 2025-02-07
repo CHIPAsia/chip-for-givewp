@@ -64,7 +64,7 @@ class Chip_Givewp_Refund_Button {
 
 		check_admin_referer( 'gwp_chip_refund_payment', 'gwp_chip_refund_payment' );
 
-		$donation_id = absint( $_POST['donation_id'] ?? 0 );
+		$donation_id = absint( $_POST['donation_id'] ?? '' );
 
 		if ( empty( $donation_id ) ) {
 			Chip_Givewp_Helper::log( null, LogType::ERROR, __( 'Donation ID was empty', 'chip-for-givewp' ) );
