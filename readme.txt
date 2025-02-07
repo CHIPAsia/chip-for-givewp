@@ -3,7 +3,7 @@ Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
 Requires at least: 4.7
 Tested up to: 6.7
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Requires PHP: 7.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,8 +32,9 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 == Changelog ==
 
-= 1.2.0 - 2024-12-17 =
-* Added - Support GiveWP 3.0 Visual Donation Form Builder.
+= 1.2.1 - 2025-02-07 =
+* Fixed - Issue with Option-Based Form Editor where payment info show escaped output.
+* Fixed - Remove filtering for webhook to prevent unpredictable failure for openssl_verify.
 
 == Installation ==
 

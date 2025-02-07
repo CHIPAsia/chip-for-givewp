@@ -128,7 +128,7 @@ class Chip_Givewp_Listener {
 
 			$content = file_get_contents( 'php://input' );
 
-			if ( openssl_verify( $content, base64_decode( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_SIGNATURE'] ) ) ), $public_key, 'sha256WithRSAEncryption' ) != 1 ) {
+			if ( openssl_verify( $content, base64_decode( $_SERVER['HTTP_X_SIGNATURE'] ), $public_key, 'sha256WithRSAEncryption' ) != 1 ) {
 				$message = __( 'Success callback failed to be processed due to failure in verification.', 'chip-for-givewp' );
 
 				Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $message );
