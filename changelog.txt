@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.2.0 - 2024-12-17 =
+* Added - Support GiveWP 3.0 Visual Donation Form Builder.
+
 = 1.1.0 - 2023-10-27 =
 * Changed - Now the redirection will not rely on session. Instead it will rely on meta.
 * Changed - Now reference is set to donation id instead of payment_key
