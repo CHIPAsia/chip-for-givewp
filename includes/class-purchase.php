@@ -27,13 +27,13 @@ class Chip_Givewp_Purchase {
 		do_action( 'give_before_chip_info_fields', $form_id );
 		?>
 		<fieldset class="no-fields" id="give_chip_payment_info">
-			<?php echo esc_html( stripslashes( wp_kses_post( $instructions ) ) ); ?>
+			<?php echo stripslashes(  $instructions ); ?>
 		</fieldset>
 		<?php
 
 		do_action( 'give_after_chip_info_fields', $form_id );
 
-		echo esc_html( ob_get_clean() );
+		echo wp_kses_post( ob_get_clean() );
 	}
 
 	private function get_instructions( $form_id, $wpautop = false ) {
@@ -160,7 +160,7 @@ class Chip_Givewp_Purchase {
 			'brand_id' => $brand_id,
 			'client' => [ 
 					'email' => $payment_data['user_email'],
-					'full_name' => substr( $payment_data['user_info']['first_name'] . ' ' . $payment_data['user_info']['last_name'], 0, 30 ),
+					'full_name' => trim(substr( $payment_data['user_info']['first_name'] . ' ' . $payment_data['user_info']['last_name'], 0, 30 )),
 				],
 			'purchase' => array(
 				'timezone' => apply_filters( 'gwp_chip_purchase_timezone', $this->get_timezone() ),
@@ -175,11 +175,17 @@ class Chip_Givewp_Purchase {
 		);
 
 		if ( give_is_setting_enabled( $billing_fields ) ) {
-			$params['client']['street_address'] = substr( $payment_data['post_data']['card_address'] ?? 'Address' . ' ' . ( $payment_data['post_data']['card_address_2'] ?? '' ), 0, 128 );
-			$params['client']['country'] = $payment_data['post_data']['billing_country'] ?? 'MY';
-			$params['client']['city'] = $payment_data['post_data']['card_city'] ?? 'Kuala Lumpur';
-			$params['client']['zip_code'] = $payment_data['post_data']['card_zip'] ?? '10000';
-			$params['client']['state'] = substr( $payment_data['post_data']['card_state'], 0, 2 ) ?? 'KL';
+			$params['client']['street_address'] = trim(substr( $payment_data['post_data']['card_address'] ?? '' . ' ' . ( $payment_data['post_data']['card_address_2'] ?? '' ), 0, 128 ));
+			$params['client']['country'] = trim($payment_data['post_data']['billing_country'] ?? '');
+			$params['client']['city'] = trim($payment_data['post_data']['card_city'] ?? '');
+			$params['client']['zip_code'] = trim($payment_data['post_data']['card_zip'] ?? '');
+			$params['client']['state'] = trim(substr( $payment_data['post_data']['card_state'], 0, 2 ) ?? '');
+		}
+
+    foreach ( $params['client'] as $key => $value ) {
+			if ( empty( $value ) ) {
+				unset( $params['client'][ $key ] );
+			}
 		}
 
 		$params = apply_filters( 'gwp_chip_purchase_params', $params, $payment_data, $this );
