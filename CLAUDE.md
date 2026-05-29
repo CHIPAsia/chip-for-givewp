@@ -19,10 +19,10 @@ Both gateways share the same backend logic (API calls, listener, settings) but h
 ### Core Components
 
 - **`chip-for-givewp.php`** — Main plugin file. Bootstraps all includes and registers the legacy gateway via `give_payment_gateways` filter.
-- **`includes/class-api.php`** — `Chip_Givewp_API`. Wraps CHIP REST API (`https://gate.chip-in.asia/api/v1`). **Important**: `get_instance()` returns a **new instance** on every call (not a true singleton) to avoid credential caching across forms.
+- **`includes/class-api.php`** — `Chip_Givewp_API`. Wraps CHIP REST API (`https://gate.chip-in.asia/api/v1`). **Important**: `get_instance()` is a **keyed singleton** — instances are cached by `md5($secret_key . '|' . $brand_id)` so the same credentials reuse one instance, but different credentials get separate instances. Added methods: `get_company_uid()`, `cancel_payment()`. `request()` returns `null` on `WP_Error` or non-2xx status codes.
 - **`includes/class-purchase.php`** — `Chip_Givewp_Purchase`. Handles legacy form donation creation and redirect to CHIP checkout.
 - **`includes/block/class-chip-gateway.php`** — `ChipGateway`. Handles block-form donation creation. Also implements `refundDonation()` for block-form refunds.
-- **`includes/class-listener.php`** — `Chip_Givewp_Listener`. Handles CHIP callback/webhook (`handle_callback`) and customer redirect (`handle_redirect`). Verifies webhook signatures via `openssl_verify` using a cached public key. Uses MySQL `GET_LOCK`/`RELEASE_LOCK` to prevent duplicate payment processing.
+- **`includes/class-listener.php`** — `Chip_Givewp_Listener`. Handles CHIP callback/webhook (`handle_callback`) and customer redirect (`handle_redirect`). Verifies webhook signatures via `openssl_verify` using a **company-UID-based cached public key** (`gwp_chip_public_key_{company_uid}`). On verification failure, falls back to fetching payment status via the API. Uses MySQL `GET_LOCK`/`RELEASE_LOCK` (verified with `get_var()`) to prevent duplicate payment processing.
 - **`includes/class-helper.php`** — `Chip_Givewp_Helper`. Static utilities for form settings and logging via `Give\Log\LogFactory`.
 - **`includes/admin/`** — Settings UI:
   - `class-settings.php` — Base settings field definitions (shared by global and per-form settings).
@@ -33,13 +33,15 @@ Both gateways share the same backend logic (API calls, listener, settings) but h
 - **`includes/block/js/chip-gateway.js`** — Minimal React-based frontend for block forms. Registers `window.givewp.gateways`.
 - **`includes/js/metabox.js`** — Toggles per-form CHIP settings visibility in the legacy form editor.
 - **`includes/js/refund.js`** — AJAX handler for the admin refund button.
+- **`.wp-env.json`** — Local WordPress environment config (GiveWP + plugin-check).
+- **`.wordpress-org/`** — WordPress.org plugin directory assets (banners, icons, screenshots).
 
 ### Settings Model
 CHIP settings exist at two levels:
 1. **Global**: Stored via `give_update_option()` / `give_get_option()`.
 2. **Per-form**: Stored via `give_update_meta()` / `give_get_meta()` with `_give_` prefix when customization is enabled.
 
-The `Chip_Givewp_Helper::get_fields()` / `update_fields()` methods abstract this dual storage.
+The `Chip_Givewp_Helper::get_fields()` / `update_fields()` methods abstract this dual storage. Additional fields added in v1.3.0: `chip-due-strict`, `chip-due-strict-timing` (default 60), `chip-cancel-url`.
 
 ## Key Code Patterns
 
@@ -51,10 +53,10 @@ The `Chip_Givewp_Helper::get_fields()` / `update_fields()` methods abstract this
 ## Development Notes
 
 - **No frontend build step**: Edit PHP/JS files directly.
-- **Composer dev dependencies**: `phpunit`, `wp-mock`, `yoast/phpunit-polyfills`.
+- **Composer dev dependencies**: `phpunit/phpunit`, `10up/wp_mock`, `yoast/phpunit-polyfills`.
 - **Formatting**: VS Code workspace setting uses `"php.format.codeStyle": "WordPress"`. PHPCS is configured for WordPress standards via `phpcs.xml`.
-- **Minimum PHP**: 7.4 (as of v1.2.2).
-- **Tested up to**: WordPress 7.0 (as of v1.2.2).
+- **Minimum PHP**: 7.4 (as of v1.3.0).
+- **Tested up to**: WordPress 7.0 (as of v1.3.0).
 
 ## Common Commands
 
@@ -84,6 +86,8 @@ phpcs --standard=PHPCompatibilityWP --runtime-set testVersion 8.5 --extensions=p
 - To change checkout redirect logic: edit `includes/class-purchase.php::create()` or `includes/block/class-chip-gateway.php::createPayment()`.
 - To adjust webhook verification or payment locking: edit `includes/class-listener.php::handle_processing()`.
 - To update version: bump in `chip-for-givewp.php` (header + `GWP_CHIP_MODULE_VERSION`), `readme.txt` (`Stable tag`), and `changelog.txt`. Alternatively, use `./scripts/bump-version.sh X.Y.Z`.
+- To update WordPress.org assets: place images in `.wordpress-org/` (banners, icons, screenshots). Deployed to SVN by `deploy.yml`.
+- To run local WordPress environment: `wp-env` reads `.wp-env.json` (GiveWP + plugin-check pre-installed).
 
 ## External Dependencies
 
