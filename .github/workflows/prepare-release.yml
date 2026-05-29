@@ -188,6 +188,6 @@ jobs:
           echo ""
           echo "Next (manual):"
           echo "  1. Review and merge the PR"
-          echo "  2. After merge, create tag: git tag -a ${VERSION} -m 'Release ${VERSION}'"
-          echo "  3. Push tag: git push origin ${VERSION}"
+          echo "  2. After merge, create tag: git tag -a v${VERSION} -m 'Release ${VERSION}'"
+          echo "  3. Push tag: git push origin v${VERSION}"
           echo "  4. deploy.yml triggers automatically on the tag"
