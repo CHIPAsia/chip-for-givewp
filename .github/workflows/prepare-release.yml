@@ -35,11 +35,13 @@ jobs:
       - name: Check version does not already exist
         run: |
           VERSION="${{ github.event.inputs.version }}"
-          TAG="v${VERSION}"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "❌ Error: Tag $TAG already exists."
-            exit 1
-          fi
+          # GiveWP historically uses plain tags (1.2.1); check both conventions.
+          for TAG in "$VERSION" "v${VERSION}"; do
+            if git rev-parse "$TAG" >/dev/null 2>&1; then
+              echo "❌ Error: Tag $TAG already exists."
+              exit 1
+            fi
+          done
           if grep -q "^= ${VERSION} " changelog.txt; then
             echo "❌ Error: Changelog entry for ${VERSION} already exists."
             exit 1
@@ -57,7 +59,11 @@ jobs:
       - name: Get previous tag
         id: prev_tag
         run: |
+          # GiveWP historically uses plain tags (1.2.1); search both conventions.
           PREVIOUS_TAG=$(git tag -l 'v*' --sort=-v:refname | head -n 1 || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            PREVIOUS_TAG=$(git tag -l '[0-9]*' --sort=-v:refname | head -n 1 || echo "")
+          fi
           echo "tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
           echo "📎 Previous tag: ${PREVIOUS_TAG:-none}"
 
@@ -144,7 +150,7 @@ jobs:
 
           # Write PR body to file
           {
-            echo "## Release v${VERSION}"
+            echo "## Release ${VERSION}"
             echo ""
             echo "### Changelog"
             printf '%s\n' "${CHANGELOG_BODY}"
@@ -152,13 +158,13 @@ jobs:
             echo "### Checklist"
             echo "- [ ] Review changelog accuracy"
             echo "- [ ] Verify version bumped in all files"
-            echo "- [ ] After merge, create tag \`v${VERSION}\` to trigger deploy"
+            echo "- [ ] After merge, create tag \`${VERSION}\` or \`v${VERSION}\` to trigger deploy"
           } > pr_body.md
 
           gh pr create \
             --base main \
             --head "$BRANCH" \
-            --title "Release v${VERSION}" \
+            --title "Release ${VERSION}" \
             --body-file pr_body.md
 
           rm -f pr_body.md
@@ -182,6 +188,6 @@ jobs:
           echo ""
           echo "Next (manual):"
           echo "  1. Review and merge the PR"
-          echo "  2. After merge, create tag: git tag -a v${VERSION} -m 'Release ${VERSION}'"
-          echo "  3. Push tag: git push origin v${VERSION}"
+          echo "  2. After merge, create tag: git tag -a ${VERSION} -m 'Release ${VERSION}'"
+          echo "  3. Push tag: git push origin ${VERSION}"
           echo "  4. deploy.yml triggers automatically on the tag"

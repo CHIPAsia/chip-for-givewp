@@ -159,7 +159,7 @@ if ! $YES; then
     echo "Next steps:"
     echo "  1. Review the changelog entry in changelog.txt"
     echo "  2. git commit -m \"Bump version to ${NEW_VERSION}\""
-    echo "  3. git tag v${NEW_VERSION}"
+    echo "  3. git tag ${NEW_VERSION}"
     echo "  4. git push origin main --tags"
     echo ""
     echo "The deploy workflow will then release to WordPress.org automatically."
