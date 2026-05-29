@@ -46,9 +46,7 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 * Changed - Block gateway now explicitly implements PaymentGatewayRefundable interface.
 * Changed - Updated getLegacyFormFieldMarkup signature for GiveWP 4.x compatibility.
 
-= 1.2.1 - 2025-02-07 =
-* Fixed - Issue with Option-Based Form Editor where payment info show escaped output.
-* Fixed - Remove filtering for webhook to prevent unpredictable failure for openssl_verify.
+[See changelog for all versions](https://github.com/CHIPAsia/chip-for-givewp/releases).
 
 == Installation ==
 
