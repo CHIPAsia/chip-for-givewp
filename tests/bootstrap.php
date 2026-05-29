@@ -14,7 +14,7 @@ if ( ! defined( 'GWP_CHIP_PLUGIN_PATH' ) ) {
 }
 
 if ( ! defined( 'GWP_CHIP_MODULE_VERSION' ) ) {
-	define( 'GWP_CHIP_MODULE_VERSION', 'v1.2.2' );
+	define( 'GWP_CHIP_MODULE_VERSION', 'v1.3.0' );
 }
 
 $autoload = GWP_CHIP_PLUGIN_PATH . 'vendor/autoload.php';

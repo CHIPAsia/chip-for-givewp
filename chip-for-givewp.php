@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
  * Plugin Name: CHIP for GiveWP
  * Plugin URI: https://wordpress.org/plugins/chip-for-givewp/
  * Description: CHIP - Digital Finance Platform
- * Version: 1.2.2
+ * Version: 1.3.0
  * Author: Chip In Sdn Bhd
  * Author URI: https://www.chip-in.asia
  *
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'GWP_CHIP_MODULE_VERSION', 'v1.2.2' );
+define( 'GWP_CHIP_MODULE_VERSION', 'v1.3.0' );
 
 class Chip_Givewp {
 

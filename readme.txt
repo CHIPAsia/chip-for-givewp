@@ -3,7 +3,7 @@ Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 Requires PHP: 7.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,7 +32,7 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 == Changelog ==
 
-= 1.2.2 - 2026-05-19 =
+= 1.3.0 - 2026-05-29 =
 * Fixed - API singleton now returns a new instance to prevent credential caching across forms.
 * Fixed - Refund button now appears for GiveWP 3.0 Visual Form Builder (chip_block) donations.
 * Fixed - Corrected refund guard meta key lookup.
