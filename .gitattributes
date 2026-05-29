@@ -33,3 +33,4 @@ phpunit.xml.dist export-ignore
 phpcs.xml export-ignore
 .dockerignore export-ignore
 .phpunit.result.cache export-ignore
+.wp-env.json export-ignore
