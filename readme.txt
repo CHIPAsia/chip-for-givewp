@@ -1,7 +1,7 @@
 === CHIP for GiveWP ===
 Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
-Requires at least: 4.7
+Requires at least: 6.3
 Tested up to: 7.0
 Stable tag: 1.3.0
 Requires PHP: 7.4
@@ -45,6 +45,7 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 * Changed - Replaced sizeof() with count().
 * Changed - Block gateway now explicitly implements PaymentGatewayRefundable interface.
 * Changed - Updated getLegacyFormFieldMarkup signature for GiveWP 4.x compatibility.
+* Changed - Requires at least WordPress bumped to 6.3.
 
 [See changelog for all versions](https://github.com/CHIPAsia/chip-for-givewp/releases).
 
@@ -56,7 +57,7 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 = Minimum Requirements =
 
-* WordPress 4.7 or greater
+* WordPress 6.3 or greater
 
 = Automatic installation =
 
