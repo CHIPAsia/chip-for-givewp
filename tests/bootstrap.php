@@ -39,7 +39,7 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 	}
 }
 
-// WordPress HTTP API stubs used by class-api.php.
+// WordPress HTTP API stubs used by class-chip-givewp-api.php.
 if ( ! class_exists( 'WP_Error' ) ) {
 	class WP_Error {
 		public function __construct( $code = '', $message = '', $data = '' ) {
@@ -60,7 +60,7 @@ if ( ! function_exists( 'wp_remote_retrieve_response_code' ) ) {
 }
 
 // Load plugin files
-require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-api.php';
-require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-helper.php';
-require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-listener.php';
-require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-purchase.php';
+require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-chip-givewp-api.php';
+require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-chip-givewp-helper.php';
+require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-chip-givewp-listener.php';
+require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-chip-givewp-purchase.php';
