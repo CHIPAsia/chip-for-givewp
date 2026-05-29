@@ -1,19 +1,41 @@
 <?php
+/**
+ * Per-form CHIP settings tab in the form editor.
+ *
+ * @package GiveWPCHIP
+ */
+
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Metabox settings for per-form CHIP configuration.
+ */
 class Chip_Givewp_Admin_Metabox_Settings extends Chip_Givewp_Admin_Settings {
 
-	private static $_instance;
+	/**
+	 * Single instance of the class.
+	 *
+	 * @var Chip_Givewp_Admin_Metabox_Settings|null
+	 */
+	private static $instance;
 
+	/**
+	 * Gets the single instance of the class.
+	 *
+	 * @return Chip_Givewp_Admin_Metabox_Settings
+	 */
 	public static function get_instance() {
 
-		if ( self::$_instance == null ) {
-			self::$_instance = new self();
+		if ( null === self::$instance ) {
+			self::$instance = new self();
 		}
 
-		return self::$_instance;
+		return self::$instance;
 	}
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_js' ) );
@@ -22,13 +44,24 @@ class Chip_Givewp_Admin_Metabox_Settings extends Chip_Givewp_Admin_Settings {
 		add_filter( 'gwp_chip_metabox_fields', array( $this, 'metabox_fields' ) );
 	}
 
+	/**
+	 * Enqueues the metabox JavaScript.
+	 *
+	 * @param string $hook Current admin page.
+	 */
 	public function enqueue_js( $hook ) {
 
-		if ( 'post.php' === $hook || $hook === 'post-new.php' ) {
-			wp_enqueue_script( 'gwp_chip_metabox', plugins_url( 'includes/js/metabox.js', GWP_CHIP_FILE ) );
+		if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
+			wp_enqueue_script( 'gwp_chip_metabox', plugins_url( 'includes/js/metabox.js', GWP_CHIP_FILE ), array(), GWP_CHIP_MODULE_VERSION, true );
 		}
 	}
 
+	/**
+	 * Adds the CHIP tab to the form editor.
+	 *
+	 * @param array $settings Form settings.
+	 * @return array
+	 */
 	public function add_tab( $settings ) {
 		if ( give_is_gateway_active( 'chip' ) ) {
 			$settings['chip_metabox_options'] = apply_filters(
@@ -45,8 +78,14 @@ class Chip_Givewp_Admin_Metabox_Settings extends Chip_Givewp_Admin_Settings {
 		return $settings;
 	}
 
+	/**
+	 * Adds per-form CHIP fields to the metabox.
+	 *
+	 * @param array $settings Form settings.
+	 * @return array
+	 */
 	public function metabox_fields( $settings ) {
-		if ( in_array( 'chip', (array) give_get_option( 'gateways' ) ) ) {
+		if ( in_array( 'chip', (array) give_get_option( 'gateways' ), true ) ) {
 			return $settings;
 		}
 

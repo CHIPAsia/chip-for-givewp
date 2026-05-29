@@ -1,4 +1,10 @@
 <?php
+/**
+ * GiveWP 3.0 block-form gateway implementation.
+ *
+ * @package GiveWPCHIP
+ */
+
 defined( 'ABSPATH' ) || exit;
 
 use Give\Donations\Models\Donation;
@@ -11,29 +17,67 @@ use Give\Framework\PaymentGateways\Exceptions\PaymentGatewayException;
 use Give\Framework\PaymentGateways\PaymentGateway;
 use Give\Log\ValueObjects\LogType;
 
+/**
+ * CHIP gateway for GiveWP 3.0 Visual Form Builder.
+ */
 class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
+
+	/**
+	 * Debug flag.
+	 *
+	 * @var bool
+	 */
 	private $debug;
 
+	/**
+	 * Whether the gateway script has been loaded.
+	 *
+	 * @var bool
+	 */
 	private static bool $script_loaded = false;
 
+	/**
+	 * Gateway ID.
+	 *
+	 * @return string
+	 */
 	public static function id(): string {
 		return 'chip_block';
 	}
 
+	/**
+	 * Gateway ID (instance method).
+	 *
+	 * @return string
+	 */
 	public function getId(): string {
 		return self::id();
 	}
 
+	/**
+	 * Gateway name.
+	 *
+	 * @return string
+	 */
 	public function getName(): string {
 		return __( 'CHIP', 'chip-for-givewp' );
 	}
 
+	/**
+	 * Payment method label.
+	 *
+	 * @return string
+	 */
 	public function getPaymentMethodLabel(): string {
 		return __( 'CHIP', 'chip-for-givewp' );
 	}
 
 	/**
-	 * Display gateway fields for v2 donation forms
+	 * Display gateway fields for v2 donation forms.
+	 *
+	 * @param int   $formId Form ID.
+	 * @param array $args   Additional args.
+	 * @return string
 	 */
 	public function getLegacyFormFieldMarkup( int $formId, array $args ): string {
 		return "<div class=''>
@@ -42,19 +86,21 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 	}
 
 	/**
-	 * Register a js file to display gateway fields for v3 donation forms
+	 * Registers a JS file to display gateway fields for v3 donation forms.
+	 *
+	 * @param int $formId Form ID.
 	 */
 	public function enqueueScript( int $formId ) {
 
-		// Ensure loaded once
+		// Ensure loaded once.
 		if ( self::$script_loaded ) {
 			return;
 		}
 
-		// Get handle
+		// Get handle.
 		$handle = $this::id();
 
-		// Set script_loaded to TRUE
+		// Set script_loaded to TRUE.
 		self::$script_loaded = true;
 
 		wp_enqueue_script(
@@ -66,6 +112,15 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 		);
 	}
 
+	/**
+	 * Creates a CHIP payment and redirects offsite.
+	 *
+	 * @param Donation $donation    Donation model.
+	 * @param mixed    $gatewayData Gateway data.
+	 * @return RedirectOffsite
+	 * @throws PaymentGatewayException On payment creation failure.
+	 * @throws \Exception              On API response error (re-thrown as PaymentGatewayException).
+	 */
 	public function createPayment( Donation $donation, $gatewayData ): RedirectOffsite {
 
 		$form_id = $donation->formId;
@@ -77,7 +132,7 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 			$prefix = '_give_';
 		}
 
-		// Assign data
+		// Assign data.
 		$secret_key        = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
 		$due_strict        = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict', $prefix );
 		$due_strict_timing = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict-timing', $prefix );
@@ -86,7 +141,7 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 		$billing_fields    = Chip_Givewp_Helper::get_fields( $form_id, 'chip-enable-billing-fields', $prefix );
 		$currency          = give_get_currency( $form_id );
 
-		// Instantiate Chip_Givewp_API
+		// Instantiate Chip_Givewp_API.
 		$chip = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
 
 		// Pre-fetch and cache public key for webhook verification.
@@ -98,10 +153,10 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 			}
 		}
 
-		// Instantiate listener
+		// Instantiate listener.
 		$listener = Chip_Givewp_Listener::get_instance();
 
-		// Assign parameter
+		// Assign parameter.
 		$params = array(
 			'success_callback' => $listener->get_callback_url(
 				array(
@@ -132,7 +187,7 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 				'due_strict' => give_is_setting_enabled( $due_strict ),
 				'products'   => array(
 					array(
-						'name'     => substr( $donation->formTitle, 0, 256 ), // substr(give_payment_gateway_item_title($payment_data), 0, 256),
+						'name'     => substr( $donation->formTitle, 0, 256 ),
 						'price'    => round( $donation->amount->getAmount() ),
 						'quantity' => '1',
 					),
@@ -140,7 +195,7 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 			),
 		);
 
-		// Try and catch response from CHIP
+		// Try and catch response from CHIP.
 		try {
 			$payment = $chip->create_payment( $params );
 
@@ -162,29 +217,34 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 
 			return new RedirectOffsite( $payment['checkout_url'] );
 		} catch ( \Exception $e ) {
-			// When debug mode, display details
+			// When debug mode, display details.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				$status_message = $e->getMessage();
+				throw new PaymentGatewayException( esc_html( $e->getMessage() ) );
 			} else {
-				$status_message = esc_html__( 'CHIP: Something went wrong, please contact the merchant', 'chip-for-givewp' );
+				throw new PaymentGatewayException( esc_html__( 'CHIP: Something went wrong, please contact the merchant', 'chip-for-givewp' ) );
 			}
-
-			throw new PaymentGatewayException( $status_message );
 		}
 	}
 
+	/**
+	 * Refunds a donation via CHIP.
+	 *
+	 * @param Donation $donation Donation model.
+	 * @return PaymentRefunded
+	 * @throws \Exception On refund failure.
+	 */
 	public function refundDonation( Donation $donation ): PaymentRefunded {
 
-		// Set donation_id and payment_id
+		// Set donation_id and payment_id.
 		$donation_id = $donation->id;
 		$payment_id  = $donation->gatewayTransactionId;
 
-		// Refund initiated note
+		// Refund initiated note.
 		/* translators: 1: CHIP Transaction ID */
 		give_insert_payment_note( $donation_id, sprintf( __( 'Refund initiated for CHIP transaction ID: %1$s', 'chip-for-givewp' ), $payment_id ) );
 
 		try {
-			// Get meta key
+			// Get meta key.
 			$chip_is_refunded = give_get_payment_meta( $donation_id, 'chip_is_refunded', true );
 
 			$form_id       = give_get_payment_form_id( $donation_id );
@@ -198,18 +258,18 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 			$secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
 			$brand_id   = Chip_Givewp_Helper::get_fields( $form_id, 'chip-brand-id', $prefix );
 
-			// If already refunded
-			if ( $chip_is_refunded == 1 ) {
+			// If already refunded.
+			if ( 1 === (int) $chip_is_refunded ) {
 				throw new Exception( __( 'Donation already refunded in CHIP.', 'chip-for-givewp' ) );
 			}
 
-			// Instantiate Chip_Givewp_API
+			// Instantiate Chip_Givewp_API.
 			$chip = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
 
-			// Refund in CHIP
+			// Refund in CHIP.
 			$payment = $chip->refund_payment( $payment_id );
 
-			// CHIP refund unsucessful
+			// CHIP refund unsucessful.
 			if ( ! is_array( $payment ) || ! array_key_exists( 'id', $payment ) ) {
 				/* translators: CHIP refund_payment API response */
 				$msg = sprintf( __( 'There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode( $payment ) );
@@ -231,6 +291,7 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 				)
 			);
 
+			// phpcs:ignore WordPress.NamingConventions.ValidHookName
 			do_action( 'give_donor-note_email_notification', $note_id, $donation_id );
 
 		} catch ( \Exception $e ) {
@@ -240,12 +301,12 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 
 		give_get_payment_note_html( $note_id );
 
-		// Return PaymentRefunded with new CHIP refund transaction ID
+		// Return PaymentRefunded with new CHIP refund transaction ID.
 		return new PaymentRefunded( $payment['id'] );
 	}
 
 	/**
-	 * Get Timezone
+	 * Gets the site timezone string.
 	 *
 	 * @return string
 	 */

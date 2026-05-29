@@ -34,4 +34,39 @@
 		</properties>
 	</rule>
 
+	<!-- Main plugin entry point cannot be renamed to class-chip-givewp.php. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>chip-for-givewp.php</exclude-pattern>
+		<exclude-pattern>uninstall.php</exclude-pattern>
+	</rule>
+
+	<!-- WordPress pseudo-singleton pattern uses $instance (not $_instance). -->
+	<rule ref="PSR2.Classes.PropertyDeclaration">
+		<exclude name="PSR2.Classes.PropertyDeclaration.Underscore"/>
+	</rule>
+
+	<!-- GiveWP 3.0 PaymentGateway interface mandates camelCase parameter names. -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<exclude-pattern>includes/block/class-chipgateway.php</exclude-pattern>
+	</rule>
+
+	<!-- Webhook callbacks do not use WordPress nonces (verified via signature). -->
+	<rule ref="WordPress.Security.NonceVerification">
+		<exclude-pattern>includes/class-chip-givewp-listener.php</exclude-pattern>
+	</rule>
+
+	<!-- base64_decode is used for legitimate webhook signature verification. -->
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+		<exclude-pattern>includes/class-chip-givewp-listener.php</exclude-pattern>
+	</rule>
+
+	<!-- GiveWP registered capabilities. -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="edit_give_payments"/>
+			</property>
+		</properties>
+	</rule>
+
 </ruleset>

@@ -5,6 +5,8 @@
  * @package GiveWPCHIP
  */
 
+defined( 'ABSPATH' ) || exit;
+
 use Give\Log\ValueObjects\LogType;
 
 /**
@@ -12,7 +14,12 @@ use Give\Log\ValueObjects\LogType;
  */
 class Chip_Givewp_Listener {
 
-	private static $_instance;
+	/**
+	 * Single instance of the class.
+	 *
+	 * @var Chip_Givewp_Listener|null
+	 */
+	private static $instance;
 
 	const CALLBACK_KEY        = 'chip-for-givewp-callback';
 	const CALLBACK_PASSPHRASE = 'chip-for-givewp-webhook';
@@ -20,19 +27,33 @@ class Chip_Givewp_Listener {
 	const REDIRECT_KEY        = 'chip-for-givewp-redirect';
 	const REDIRECT_PASSPHRASE = 'chip-for-givewp-redirect';
 
+	/**
+	 * Gets the single instance of the class.
+	 *
+	 * @return Chip_Givewp_Listener
+	 */
 	public static function get_instance() {
-		if ( self::$_instance == null ) {
-			self::$_instance = new self();
+		if ( null === self::$instance ) {
+			self::$instance = new self();
 		}
 
-		return self::$_instance;
+		return self::$instance;
 	}
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'handle_callback' ) );
 		add_action( 'init', array( $this, 'handle_redirect' ) );
 	}
 
+	/**
+	 * Builds the callback URL for a donation.
+	 *
+	 * @param array $params Query parameters.
+	 * @return string
+	 */
 	public function get_callback_url( array $params ) {
 
 		$passphrase = get_option( self::CALLBACK_PASSPHRASE, false );
@@ -46,17 +67,26 @@ class Chip_Givewp_Listener {
 		return add_query_arg( $params, site_url( '/' ) );
 	}
 
+	/**
+	 * Builds the redirect URL for a donation.
+	 *
+	 * @param array $params Query parameters.
+	 * @return string
+	 */
 	public function get_redirect_url( $params ) {
 		$params[ self::REDIRECT_KEY ] = self::REDIRECT_PASSPHRASE;
 		return add_query_arg( $params, site_url( '/' ) );
 	}
 
+	/**
+	 * Handles the customer redirect after payment.
+	 */
 	public function handle_redirect() {
 		if ( ! isset( $_GET[ self::REDIRECT_KEY ] ) ) {
 			return;
 		}
 
-		if ( $_GET[ self::REDIRECT_KEY ] != self::REDIRECT_PASSPHRASE ) {
+		if ( self::REDIRECT_PASSPHRASE !== $_GET[ self::REDIRECT_KEY ] ) {
 			return;
 		}
 
@@ -65,6 +95,9 @@ class Chip_Givewp_Listener {
 		$this->handle_processing();
 	}
 
+	/**
+	 * Handles the CHIP webhook callback.
+	 */
 	public function handle_callback() {
 		if ( ! isset( $_GET[ self::CALLBACK_KEY ] ) ) {
 			return;
@@ -75,7 +108,7 @@ class Chip_Givewp_Listener {
 			return;
 		}
 
-		if ( $_GET[ self::CALLBACK_KEY ] != $passphrase ) {
+		if ( $passphrase !== $_GET[ self::CALLBACK_KEY ] ) {
 			/* translators: 1: Callback failed */
 			Chip_Givewp_Helper::log( null, LogType::NOTICE, __( 'Callback failed due to invalid passphrase: %1$s', 'chip-for-givewp' ) );
 			return;
@@ -87,6 +120,9 @@ class Chip_Givewp_Listener {
 		$this->handle_processing();
 	}
 
+	/**
+	 * Processes the payment status update.
+	 */
 	private function handle_processing() {
 		if ( ! isset( $_GET['donation_id'] ) ) {
 			Chip_Givewp_Helper::log( null, LogType::ERROR, __( 'Processing halted due to empty donation id', 'chip-for-givewp' ) );
@@ -100,12 +136,12 @@ class Chip_Givewp_Listener {
 
 		$chip_block_view = false;
 
-		if ( $payment_gateway == 'chip_block' ) {
+		if ( 'chip_block' === $payment_gateway ) {
 			$chip_block_view = true;
 		}
 
 		if ( ! $chip_block_view ) {
-			if ( $payment_gateway != 'chip' ) {
+			if ( 'chip' !== $payment_gateway ) {
 				Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'Processing halted as payment gateway is not chip', 'chip-for-givewp' ) );
 				exit;
 			}
@@ -124,8 +160,8 @@ class Chip_Givewp_Listener {
 		$secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
 
 		if ( isset( $_SERVER['HTTP_X_SIGNATURE'] ) ) {
-			$content = file_get_contents( 'php://input' );
-			$payload = json_decode( $content, true );
+			$content    = file_get_contents( 'php://input' );
+			$payload    = json_decode( $content, true );
 			$company_id = isset( $payload['company_id'] ) ? trim( (string) $payload['company_id'] ) : '';
 
 			$public_key = '';
@@ -200,12 +236,12 @@ class Chip_Givewp_Listener {
 			give_die( __( 'Unexpected response', 'chip-for-givewp' ) );
 		}
 
-		if ( give_get_payment_total( $donation_id ) != round( $payment['purchase']['total'] / 100, give_get_price_decimals( $donation_id ) ) ) {
+		if ( give_get_payment_total( $donation_id ) !== round( $payment['purchase']['total'] / 100, give_get_price_decimals( $donation_id ) ) ) {
 			Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'Payment total does not match!', 'chip-for-givewp' ), $payment );
 			give_die( __( 'Payment total does not match!', 'chip-for-givewp' ) );
 		}
 
-		if ( $payment['status'] != 'paid' ) {
+		if ( 'paid' !== $payment['status'] ) {
 			Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __( 'Status updated to failed', 'chip-for-givewp' ), $payment );
 
 			give_update_payment_status( $donation_id, 'failed' );

@@ -1,6 +1,4 @@
 <?php
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Plugin Name: CHIP for GiveWP
  * Plugin URI: https://wordpress.org/plugins/chip-for-givewp/
@@ -12,22 +10,42 @@ defined( 'ABSPATH' ) || exit;
  * Copyright: © 2026 CHIP
  * License: GNU General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * @package GiveWPCHIP
  */
+
+defined( 'ABSPATH' ) || exit;
 
 define( 'GWP_CHIP_MODULE_VERSION', 'v1.3.0' );
 
+/**
+ * Main plugin class.
+ */
 class Chip_Givewp {
 
-	private static $_instance;
+	/**
+	 * Single instance of the class.
+	 *
+	 * @var Chip_Givewp|null
+	 */
+	private static $instance;
 
+	/**
+	 * Gets the single instance of the class.
+	 *
+	 * @return Chip_Givewp
+	 */
 	public static function get_instance() {
-		if ( self::$_instance == null ) {
-			self::$_instance = new self();
+		if ( null === self::$instance ) {
+			self::$instance = new self();
 		}
 
-		return self::$_instance;
+		return self::$instance;
 	}
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->define();
 		$this->includes();
@@ -35,30 +53,39 @@ class Chip_Givewp {
 		$this->add_actions();
 	}
 
+	/**
+	 * Defines plugin constants.
+	 */
 	public function define() {
 		define( 'GWP_CHIP_FILE', __FILE__ );
 		define( 'GWP_CHIP_BASENAME', plugin_basename( GWP_CHIP_FILE ) );
 	}
 
+	/**
+	 * Includes plugin files.
+	 */
 	public function includes() {
 		$includes_dir = plugin_dir_path( GWP_CHIP_FILE ) . 'includes/';
-		include $includes_dir . 'class-api.php';
-		include $includes_dir . 'class-helper.php';
+		include $includes_dir . 'class-chip-givewp-api.php';
+		include $includes_dir . 'class-chip-givewp-helper.php';
 
 		if ( is_admin() ) {
-			include $includes_dir . 'admin/class-settings.php';
-			include $includes_dir . 'admin/class-global-settings.php';
-			include $includes_dir . 'admin/class-metabox-settings.php';
-			include $includes_dir . 'admin/class-refund-button.php';
+			include $includes_dir . 'admin/class-chip-givewp-admin-settings.php';
+			include $includes_dir . 'admin/class-chip-givewp-admin-global-settings.php';
+			include $includes_dir . 'admin/class-chip-givewp-admin-metabox-settings.php';
+			include $includes_dir . 'admin/class-chip-givewp-refund-button.php';
 		}
 
-		include $includes_dir . 'class-listener.php';
-		include $includes_dir . 'class-purchase.php';
+		include $includes_dir . 'class-chip-givewp-listener.php';
+		include $includes_dir . 'class-chip-givewp-purchase.php';
 
-		// Add block support
-		include $includes_dir . 'block/chip-givewp-block.php';
+		// Add block support.
+		include $includes_dir . 'block/class-chip-givewp-block.php';
 	}
 
+	/**
+	 * Adds WordPress filters.
+	 */
 	public function add_filters() {
 		add_filter( 'plugin_action_links_' . GWP_CHIP_BASENAME, array( $this, 'setting_link' ) );
 		add_filter( 'give_payment_gateways', array( $this, 'register_payment_method' ) );
@@ -66,10 +93,19 @@ class Chip_Givewp {
 		add_filter( 'give_enabled_payment_gateways', array( $this, 'filter_gateway' ), 10, 2 );
 	}
 
+	/**
+	 * Adds WordPress actions.
+	 */
 	public function add_actions() {
 		add_action( 'give_before_chip_info_fields', array( $this, 'billing_fields' ) );
 	}
 
+	/**
+	 * Registers the CHIP payment method.
+	 *
+	 * @param array $gateways Available gateways.
+	 * @return array
+	 */
 	public function register_payment_method( $gateways ) {
 
 		$gateways['chip'] = array(
@@ -80,6 +116,12 @@ class Chip_Givewp {
 		return apply_filters( 'gwp_chip_register_payment_method', $gateways );
 	}
 
+	/**
+	 * Registers the CHIP settings section.
+	 *
+	 * @param array $sections Gateway sections.
+	 * @return array
+	 */
 	public function register_payment_gateway_sections( $sections ) {
 
 		$sections['chip-settings'] = __( 'CHIP', 'chip-for-givewp' );
@@ -87,6 +129,13 @@ class Chip_Givewp {
 		return $sections;
 	}
 
+	/**
+	 * Filters the gateway list based on form settings.
+	 *
+	 * @param array $gateway_list Available gateways.
+	 * @param int   $form_id      Form ID.
+	 * @return array
+	 */
 	public function filter_gateway( $gateway_list, $form_id ) {
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 			if (
@@ -101,6 +150,11 @@ class Chip_Givewp {
 		return $gateway_list;
 	}
 
+	/**
+	 * Adds billing fields when enabled.
+	 *
+	 * @param int $form_id Form ID.
+	 */
 	public function billing_fields( $form_id ) {
 		$chip_customization = give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' );
 		$billing_fields     = give_get_meta( $form_id, '_give_chip-enable-billing-fields', true );
@@ -115,6 +169,12 @@ class Chip_Givewp {
 		}
 	}
 
+	/**
+	 * Adds a settings link on the plugins page.
+	 *
+	 * @param array $links Existing links.
+	 * @return array
+	 */
 	public function setting_link( $links ) {
 		$new_links = array(
 			'settings' => sprintf(

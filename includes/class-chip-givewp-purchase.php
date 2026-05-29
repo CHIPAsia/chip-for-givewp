@@ -1,25 +1,52 @@
 <?php
+/**
+ * Legacy form purchase handler.
+ *
+ * @package GiveWPCHIP
+ */
+
 defined( 'ABSPATH' ) || exit;
 
 use Give\Log\ValueObjects\LogType;
 
+/**
+ * Handles legacy form donation creation and redirect to CHIP checkout.
+ */
 class Chip_Givewp_Purchase {
 
-	private static $_instance;
+	/**
+	 * Single instance of the class.
+	 *
+	 * @var Chip_Givewp_Purchase|null
+	 */
+	private static $instance;
 
+	/**
+	 * Gets the single instance of the class.
+	 *
+	 * @return Chip_Givewp_Purchase
+	 */
 	public static function get_instance() {
-		if ( self::$_instance == null ) {
-			self::$_instance = new self();
+		if ( null === self::$instance ) {
+			self::$instance = new self();
 		}
 
-		return self::$_instance;
+		return self::$instance;
 	}
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		add_action( 'give_chip_cc_form', array( $this, 'cc_form' ) );
 		add_action( 'give_gateway_chip', array( $this, 'create' ) );
 	}
 
+	/**
+	 * Renders the CHIP payment info fields.
+	 *
+	 * @param int $form_id Form ID.
+	 */
 	public function cc_form( $form_id ) {
 		$instructions = $this->get_instructions( $form_id, true );
 
@@ -28,7 +55,7 @@ class Chip_Givewp_Purchase {
 		do_action( 'give_before_chip_info_fields', $form_id );
 		?>
 		<fieldset class="no-fields" id="give_chip_payment_info">
-			<?php echo stripslashes( $instructions ); ?>
+			<?php echo wp_kses_post( $instructions ); ?>
 		</fieldset>
 		<?php
 
@@ -37,6 +64,13 @@ class Chip_Givewp_Purchase {
 		echo wp_kses_post( ob_get_clean() );
 	}
 
+	/**
+	 * Gets the donation instructions for a form.
+	 *
+	 * @param int  $form_id  Form ID.
+	 * @param bool $wpautop  Whether to apply wpautop.
+	 * @return string
+	 */
 	private function get_instructions( $form_id, $wpautop = false ) {
 		if ( ! $form_id ) {
 			return '';
@@ -44,7 +78,7 @@ class Chip_Givewp_Purchase {
 
 		$customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
 
-		if ( $customization === 'disabled' ) {
+		if ( 'disabled' === $customization ) {
 			return '';
 		}
 
@@ -70,6 +104,14 @@ class Chip_Givewp_Purchase {
 		);
 	}
 
+	/**
+	 * Formats the instruction content.
+	 *
+	 * @param string $content  Raw content.
+	 * @param int    $form_id  Form ID.
+	 * @param bool   $wpautop  Whether to apply wpautop.
+	 * @return string
+	 */
 	private function get_formatted_content( $content, $form_id, $wpautop = false ) {
 
 		$p_content = give_do_email_tags( $content, array( 'form_id' => $form_id ) );
@@ -77,9 +119,14 @@ class Chip_Givewp_Purchase {
 		return $wpautop ? wpautop( do_shortcode( $p_content ) ) : $p_content;
 	}
 
+	/**
+	 * Creates a CHIP payment and redirects the donor to checkout.
+	 *
+	 * @param array $payment_data Payment data from GiveWP.
+	 */
 	public function create( $payment_data ) {
 
-		if ( 'chip' != $payment_data['post_data']['give-gateway'] ) {
+		if ( 'chip' !== $payment_data['post_data']['give-gateway'] ) {
 			return;
 		}
 
@@ -102,7 +149,7 @@ class Chip_Givewp_Purchase {
 			give_send_back_to_checkout( '?payment-mode=chip' );
 		}
 
-		if ( $currency != 'MYR' ) {
+		if ( 'MYR' !== $currency ) {
 
 			/* translators: Currency */
 			Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unsupported currencies. Only MYR is supported. The current currency is %s.', 'chip-for-givewp' ), $currency ), $payment_data );
@@ -148,7 +195,7 @@ class Chip_Givewp_Purchase {
 		$billing_fields    = Chip_Givewp_Helper::get_fields( $form_id, 'chip-enable-billing-fields', $prefix );
 
 		// Pre-fetch and cache public key for webhook verification.
-		$chip = Chip_Givewp_API::get_instance( $secret_key, '' );
+		$chip       = Chip_Givewp_API::get_instance( $secret_key, '' );
 		$public_key = $chip->get_public_key();
 		if ( is_string( $public_key ) && '' !== $public_key ) {
 			$company_uid = $chip->get_company_uid();
@@ -240,10 +287,15 @@ class Chip_Givewp_Purchase {
 		/* translators: 1: CHIP Checkout URL */
 		give_insert_payment_note( $donation_id, sprintf( __( 'URL: %1$s', 'chip-for-givewp' ), $payment['checkout_url'] ) );
 
-		wp_redirect( esc_url_raw( apply_filters( 'gwp_chip_checkout_url', $payment['checkout_url'], $payment, $payment_data ) ) );
+		wp_safe_redirect( esc_url_raw( apply_filters( 'gwp_chip_checkout_url', $payment['checkout_url'], $payment, $payment_data ) ) );
 		give_die();
 	}
 
+	/**
+	 * Gets the site timezone string.
+	 *
+	 * @return string
+	 */
 	private function get_timezone() {
 		if ( preg_match( '/^[A-Za-z]+\/[A-Za-z\_\/\-]+$/', wp_timezone_string() ) ) {
 			return wp_timezone_string();

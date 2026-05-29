@@ -1,4 +1,9 @@
 <?php
+/**
+ * Fired when the plugin is uninstalled.
+ *
+ * @package GiveWPCHIP
+ */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	die;

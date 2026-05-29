@@ -1,7 +1,23 @@
 <?php
+/**
+ * Base settings field definitions.
+ *
+ * @package GiveWPCHIP
+ */
+
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Base admin settings fields (shared by global and per-form settings).
+ */
 abstract class Chip_Givewp_Admin_Settings {
+
+	/**
+	 * Returns the CHIP settings fields array.
+	 *
+	 * @param string $prefix Optional meta prefix for per-form settings.
+	 * @return array
+	 */
 	public function setting_fields( $prefix = '' ) {
 		$array = array(
 			array(
@@ -45,7 +61,7 @@ abstract class Chip_Givewp_Admin_Settings {
 			),
 			array(
 				'name'    => __( 'Send Receipt', 'chip-for-givewp' ),
-				'desc'    => __( 'Whether to send receipt email when it\'s paid.', 'chip-for-givewp' ),
+				'desc'    => __( "Whether to send receipt email when it's paid.", 'chip-for-givewp' ),
 				'id'      => $prefix . 'chip-send-receipt',
 				'type'    => 'radio_inline',
 				'default' => 'enabled',
@@ -56,7 +72,7 @@ abstract class Chip_Givewp_Admin_Settings {
 			),
 			array(
 				'name'    => __( 'Due Strict', 'chip-for-givewp' ),
-				'desc'    => __( 'Whether to permit payments when Purchase\'s due has passed.', 'chip-for-givewp' ),
+				'desc'    => __( "Whether to permit payments when Purchase's due has passed.", 'chip-for-givewp' ),
 				'id'      => $prefix . 'chip-due-strict',
 				'type'    => 'radio_inline',
 				'default' => 'disabled',
@@ -81,7 +97,8 @@ abstract class Chip_Givewp_Admin_Settings {
 		);
 
 		if ( ! empty( $prefix ) ) {
-			for ( $i = 0; $i < count( $array ); $i++ ) {
+			$count = count( $array );
+			for ( $i = 0; $i < $count; $i++ ) {
 				$array[ $i ]['row_classes'] = 'give-subfield give-hidden';
 			}
 		}
