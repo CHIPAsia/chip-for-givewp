@@ -15,6 +15,10 @@
 * Changed - Updated getLegacyFormFieldMarkup signature for GiveWP 4.x compatibility.
 * Changed - Requires at least WordPress bumped to 6.3.
 
+= 1.2.1 - 2025-02-07 =
+* Fixed - Issue with Option-Based Form Editor where payment info show escaped output.
+* Fixed - Remove filtering for webhook to prevent unpredictable failure for openssl_verify.
+
 = 1.2.0 - 2024-12-17 =
 * Added - Support GiveWP 3.0 Visual Donation Form Builder.
 
