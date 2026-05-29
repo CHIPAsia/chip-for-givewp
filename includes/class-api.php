@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// This is the CHIP API URL endpoint as documented in https://developer.chip-in.asia/api.
+// This is the CHIP API URL endpoint as documented in https://docs.chip-in.asia.
 define( 'GIVE_CHIP_ROOT_URL', 'https://gate.chip-in.asia' );
 
 /**
