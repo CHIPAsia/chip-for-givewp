@@ -125,8 +125,12 @@ jobs:
           name: chip-for-givewp-build
           path: ./build
 
+      # TEMP: Plugin Check is allowed to fail due to upstream bug:
+      # https://github.com/WordPress/plugin-check-action/issues/579
+      # TODO: Remove continue-on-error once the issue is resolved.
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1
+        continue-on-error: true
         with:
           build-dir: './build/chip-for-givewp'
           exclude-directories: 'vendor,node_modules'
