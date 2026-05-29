@@ -2,7 +2,7 @@ name: WordPress Plugin Check
 
 on:
   push:
-    branches: [ main, feature/port-gravity-forms-features ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
