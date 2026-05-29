@@ -1,19 +1,20 @@
 <?php
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Plugin Name: CHIP for GiveWP
  * Plugin URI: https://wordpress.org/plugins/chip-for-givewp/
  * Description: CHIP - Digital Finance Platform
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Chip In Sdn Bhd
  * Author URI: https://www.chip-in.asia
  *
- * Copyright: © 2025 CHIP
+ * Copyright: © 2026 CHIP
  * License: GNU General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'GWP_CHIP_MODULE_VERSION', 'v1.2.1' );
+define( 'GWP_CHIP_MODULE_VERSION', 'v1.2.2' );
 
 class Chip_Givewp {
 
@@ -72,7 +73,7 @@ class Chip_Givewp {
 	public function register_payment_method( $gateways ) {
 
 		$gateways['chip'] = array(
-			'admin_label' => __( 'CHIP', 'chip-for-givewp' ),
+			'admin_label'    => __( 'CHIP', 'chip-for-givewp' ),
 			'checkout_label' => __( 'Online Banking/Credit Card', 'chip-for-givewp' ),
 		);
 
@@ -91,7 +92,7 @@ class Chip_Givewp {
 			if (
 				( false === strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/wp-admin/post-new.php?post_type=give_forms' ) )
 				&& $form_id
-				&& ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' ), [ 'enabled', 'global' ] )
+				&& ! give_is_setting_enabled( give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' ), array( 'enabled', 'global' ) )
 			) {
 				unset( $gateway_list['chip'] );
 			}
@@ -102,7 +103,7 @@ class Chip_Givewp {
 
 	public function billing_fields( $form_id ) {
 		$chip_customization = give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' );
-		$billing_fields = give_get_meta( $form_id, '_give_chip-enable-billing-fields', true );
+		$billing_fields     = give_get_meta( $form_id, '_give_chip-enable-billing-fields', true );
 
 		$global_billing_fields = give_get_option( 'chip-enable-billing-fields' );
 
@@ -117,8 +118,10 @@ class Chip_Givewp {
 	public function setting_link( $links ) {
 		$new_links = array(
 			'settings' => sprintf(
-				'<a href="%1$s">%2$s</a>', admin_url( 'edit.php?post_type=give_forms&page=give-settings&tab=gateways&section=chip-settings' ), esc_html__( 'Settings', 'chip-for-givewp' )
-			)
+				'<a href="%1$s">%2$s</a>',
+				admin_url( 'edit.php?post_type=give_forms&page=give-settings&tab=gateways&section=chip-settings' ),
+				esc_html__( 'Settings', 'chip-for-givewp' )
+			),
 		);
 
 		return array_merge( $new_links, $links );

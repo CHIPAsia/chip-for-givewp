@@ -1,4 +1,6 @@
 <?php
+defined( 'ABSPATH' ) || exit;
+
 use Give\Log\ValueObjects\LogType;
 
 class Chip_Givewp_Refund_Button {
@@ -30,7 +32,7 @@ class Chip_Givewp_Refund_Button {
 
 	public function refund_button( $donation_id ) {
 
-		if ( give_get_payment_gateway( $donation_id ) != 'chip' ) {
+		if ( ! in_array( give_get_payment_gateway( $donation_id ), array( 'chip', 'chip_block' ), true ) ) {
 			return;
 		}
 
@@ -81,7 +83,7 @@ class Chip_Givewp_Refund_Button {
 			wp_die( esc_html__( 'Donation is not in completed state.', 'chip-for-givewp' ), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
 		}
 
-		$form_id = give_get_payment_form_id( $donation_id );
+		$form_id       = give_get_payment_form_id( $donation_id );
 		$customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
 
 		$prefix = '';
@@ -90,14 +92,15 @@ class Chip_Givewp_Refund_Button {
 		}
 
 		$secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
+		$brand_id   = Chip_Givewp_Helper::get_fields( $form_id, 'chip-brand-id', $prefix );
 		$payment_id = give_get_meta( $donation_id, '_give_payment_transaction_id', true );
 
-		$chip = Chip_Givewp_API::get_instance( $secret_key, '' );
+		$chip    = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
 		$payment = $chip->refund_payment( $payment_id );
 
 		if ( ! is_array( $payment ) || ! array_key_exists( 'id', $payment ) ) {
 			/* translators: Return from CHIP refund_payment API. */
-			$msg = sprintf( esc_html__( 'There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode( $payment, true ) );
+			$msg = sprintf( esc_html__( 'There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode( $payment ) );
 			Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $msg );
 			wp_die( esc_html( $msg ), esc_html__( 'Error', 'chip-for-givewp' ), array( 'response' => 403 ) );
 		}
@@ -108,11 +111,11 @@ class Chip_Givewp_Refund_Button {
 
 		$note_id = Give()->comment->db->add(
 			array(
-				'comment_parent' => $donation_id,
-				'user_id' => get_current_user_id(),
+				'comment_parent'  => $donation_id,
+				'user_id'         => get_current_user_id(),
 				/* translators: CHIP Transaction ID for Refund transaction. */
 				'comment_content' => sprintf( __( 'Donation has been refunded with ID: %s', 'chip-for-givewp' ), $payment['id'] ),
-				'comment_type' => 'donation',
+				'comment_type'    => 'donation',
 			)
 		);
 

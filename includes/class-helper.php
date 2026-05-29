@@ -1,4 +1,6 @@
 <?php
+defined( 'ABSPATH' ) || exit;
+
 use Give\Log\LogFactory as Log;
 use Give\Log\ValueObjects\LogCategory;
 class Chip_Givewp_Helper {
@@ -19,14 +21,16 @@ class Chip_Givewp_Helper {
 	}
 
 	public static function log( $form_id, $type, $message, $context = array() ) {
-		$log = Log::makeFromArray( [ 
-			'type' => $type,
-			'message' => $message,
-			'category' => LogCategory::PAYMENT,
-			'source' => 'CHIP for GiveWP version ' . GWP_CHIP_MODULE_VERSION,
-			'context' => $context,
-			'id' => $form_id
-		] );
+		$log = Log::makeFromArray(
+			array(
+				'type'     => $type,
+				'message'  => $message,
+				'category' => LogCategory::PAYMENT,
+				'source'   => 'CHIP for GiveWP version ' . GWP_CHIP_MODULE_VERSION,
+				'context'  => $context,
+				'id'       => $form_id,
+			)
+		);
 
 		$log->save();
 

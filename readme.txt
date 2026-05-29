@@ -2,9 +2,9 @@
 Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
 Requires at least: 4.7
-Tested up to: 6.7
-Stable tag: 1.2.1
-Requires PHP: 7.2
+Tested up to: 7.0
+Stable tag: 1.2.2
+Requires PHP: 7.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -31,6 +31,20 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 * Give donation page list.
 
 == Changelog ==
+
+= 1.2.2 - 2026-05-19 =
+* Fixed - API singleton now returns a new instance to prevent credential caching across forms.
+* Fixed - Refund button now appears for GiveWP 3.0 Visual Form Builder (chip_block) donations.
+* Fixed - Corrected refund guard meta key lookup.
+* Fixed - Street address concatenation precedence issue with null coalescing.
+* Fixed - Timezone regex to use proper A-Za-z character class.
+* Fixed - wp_json_encode parameter misuse.
+* Changed - Requires PHP bumped to 7.4.
+* Changed - Tested up to WordPress 7.0.
+* Changed - Added ABSPATH guards to all PHP files.
+* Changed - Replaced sizeof() with count().
+* Changed - Block gateway now explicitly implements PaymentGatewayRefundable interface.
+* Changed - Updated getLegacyFormFieldMarkup signature for GiveWP 4.x compatibility.
 
 = 1.2.1 - 2025-02-07 =
 * Fixed - Issue with Option-Based Form Editor where payment info show escaped output.

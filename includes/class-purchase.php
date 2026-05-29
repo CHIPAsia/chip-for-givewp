@@ -1,4 +1,5 @@
 <?php
+defined( 'ABSPATH' ) || exit;
 
 use Give\Log\ValueObjects\LogType;
 
@@ -71,7 +72,7 @@ class Chip_Givewp_Purchase {
 
 	private function get_formatted_content( $content, $form_id, $wpautop = false ) {
 
-		$p_content = give_do_email_tags( $content, [ 'form_id' => $form_id ] );
+		$p_content = give_do_email_tags( $content, array( 'form_id' => $form_id ) );
 
 		return $wpautop ? wpautop( do_shortcode( $p_content ) ) : $p_content;
 	}
@@ -88,10 +89,10 @@ class Chip_Givewp_Purchase {
 			give_send_back_to_checkout( '?payment-mode=chip' );
 		}
 
-		$form_id = intval( $payment_data['post_data']['give-form-id'] );
-		$price_id = ! empty( $payment_data['post_data']['give-price-id'] ) ? $payment_data['post_data']['give-price-id'] : 0;
+		$form_id         = intval( $payment_data['post_data']['give-form-id'] );
+		$price_id        = ! empty( $payment_data['post_data']['give-price-id'] ) ? $payment_data['post_data']['give-price-id'] : 0;
 		$donation_amount = ! empty( $payment_data['price'] ) ? $payment_data['price'] : 0;
-		$currency = give_get_currency( $form_id, $payment_data );
+		$currency        = give_get_currency( $form_id, $payment_data );
 
 		if ( $donation_amount < 1 ) {
 
@@ -110,17 +111,17 @@ class Chip_Givewp_Purchase {
 		}
 
 		$donation_data = array(
-			'price' => $donation_amount,
+			'price'           => $donation_amount,
 			'give_form_title' => $payment_data['post_data']['give-form-title'],
-			'give_form_id' => $form_id,
-			'give_price_id' => $price_id,
-			'date' => $payment_data['date'],
-			'user_email' => $payment_data['user_email'],
-			'purchase_key' => $payment_data['purchase_key'],
-			'currency' => $currency,
-			'user_info' => $payment_data['user_info'],
-			'status' => 'pending',
-			'gateway' => 'chip',
+			'give_form_id'    => $form_id,
+			'give_price_id'   => $price_id,
+			'date'            => $payment_data['date'],
+			'user_email'      => $payment_data['user_email'],
+			'purchase_key'    => $payment_data['purchase_key'],
+			'currency'        => $currency,
+			'user_info'       => $payment_data['user_info'],
+			'status'          => 'pending',
+			'gateway'         => 'chip',
 		);
 
 		$donation_id = give_insert_payment( $donation_data );
@@ -139,47 +140,74 @@ class Chip_Givewp_Purchase {
 			$prefix = '_give_';
 		}
 
-		$secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
-		$due_strict = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict', $prefix );
+		$secret_key        = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
+		$due_strict        = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict', $prefix );
 		$due_strict_timing = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict-timing', $prefix );
-		$send_receipt = Chip_Givewp_Helper::get_fields( $form_id, 'chip-send-receipt', $prefix );
-		$brand_id = Chip_Givewp_Helper::get_fields( $form_id, 'chip-brand-id', $prefix );
-		$billing_fields = Chip_Givewp_Helper::get_fields( $form_id, 'chip-enable-billing-fields', $prefix );
+		$send_receipt      = Chip_Givewp_Helper::get_fields( $form_id, 'chip-send-receipt', $prefix );
+		$brand_id          = Chip_Givewp_Helper::get_fields( $form_id, 'chip-brand-id', $prefix );
+		$billing_fields    = Chip_Givewp_Helper::get_fields( $form_id, 'chip-enable-billing-fields', $prefix );
+
+		// Pre-fetch and cache public key for webhook verification.
+		$chip = Chip_Givewp_API::get_instance( $secret_key, '' );
+		$public_key = $chip->get_public_key();
+		if ( is_string( $public_key ) && '' !== $public_key ) {
+			$company_uid = $chip->get_company_uid();
+			if ( is_string( $company_uid ) && '' !== $company_uid ) {
+				update_option( 'gwp_chip_public_key_' . $company_uid, str_replace( '\n', "\n", $public_key ), false );
+			}
+		}
 
 		$listener = Chip_Givewp_Listener::get_instance();
 
 		$params = array(
-			'success_callback' => $listener->get_callback_url( array( 'donation_id' => $donation_id, 'status' => 'paid' ) ),
-			'success_redirect' => $listener->get_redirect_url( array( 'donation_id' => $donation_id, 'nonce' => $payment_data['gateway_nonce'] ) ),
-			'failure_redirect' => $listener->get_redirect_url( array( 'donation_id' => $donation_id, 'status' => 'error' ) ),
-			'creator_agent' => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
-			'reference' => substr( $donation_id, 0, 128 ),
-			'platform' => 'givewp',
-			'send_receipt' => give_is_setting_enabled( $send_receipt ),
-			'due' => time() + ( absint( $due_strict_timing ) * 60 ),
-			'brand_id' => $brand_id,
-			'client' => [ 
-				'email' => $payment_data['user_email'],
+			'success_callback' => $listener->get_callback_url(
+				array(
+					'donation_id' => $donation_id,
+					'status'      => 'paid',
+				)
+			),
+			'success_redirect' => $listener->get_redirect_url(
+				array(
+					'donation_id' => $donation_id,
+					'nonce'       => $payment_data['gateway_nonce'],
+				)
+			),
+			'failure_redirect' => $listener->get_redirect_url(
+				array(
+					'donation_id' => $donation_id,
+					'status'      => 'error',
+				)
+			),
+			'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
+			'reference'        => substr( $donation_id, 0, 128 ),
+			'platform'         => 'givewp',
+			'send_receipt'     => give_is_setting_enabled( $send_receipt ),
+			'due'              => time() + ( absint( $due_strict_timing ) * 60 ),
+			'brand_id'         => $brand_id,
+			'client'           => array(
+				'email'     => $payment_data['user_email'],
 				'full_name' => trim( substr( $payment_data['user_info']['first_name'] . ' ' . $payment_data['user_info']['last_name'], 0, 30 ) ),
-			],
-			'purchase' => array(
-				'timezone' => apply_filters( 'gwp_chip_purchase_timezone', $this->get_timezone() ),
-				'currency' => $currency,
+			),
+			'purchase'         => array(
+				'timezone'   => apply_filters( 'gwp_chip_purchase_timezone', $this->get_timezone() ),
+				'currency'   => $currency,
 				'due_strict' => give_is_setting_enabled( $due_strict ),
-				'products' => array( [ 
-					'name' => substr( give_payment_gateway_item_title( $payment_data ), 0, 256 ),
-					'price' => round( $payment_data['price'] * 100 ),
-					'quantity' => '1',
-				] ),
+				'products'   => array(
+					array(
+						'name'     => substr( give_payment_gateway_item_title( $payment_data ), 0, 256 ),
+						'price'    => round( $payment_data['price'] * 100 ),
+						'quantity' => '1',
+					),
+				),
 			),
 		);
 
 		if ( give_is_setting_enabled( $billing_fields ) ) {
-			$params['client']['street_address'] = trim( substr( $payment_data['post_data']['card_address'] ?? '' . ' ' . ( $payment_data['post_data']['card_address_2'] ?? '' ), 0, 128 ) );
-			$params['client']['country'] = trim( $payment_data['post_data']['billing_country'] ?? '' );
-			$params['client']['city'] = trim( $payment_data['post_data']['card_city'] ?? '' );
-			$params['client']['zip_code'] = trim( $payment_data['post_data']['card_zip'] ?? '' );
-			$params['client']['state'] = trim( substr( $payment_data['post_data']['card_state'], 0, 2 ) ?? '' );
+			$params['client']['street_address'] = trim( substr( ( $payment_data['post_data']['card_address'] ?? '' ) . ' ' . ( $payment_data['post_data']['card_address_2'] ?? '' ), 0, 128 ) );
+			$params['client']['country']        = trim( $payment_data['post_data']['billing_country'] ?? '' );
+			$params['client']['city']           = trim( $payment_data['post_data']['card_city'] ?? '' );
+			$params['client']['zip_code']       = trim( $payment_data['post_data']['card_zip'] ?? '' );
+			$params['client']['state']          = trim( substr( $payment_data['post_data']['card_state'], 0, 2 ) ?? '' );
 		}
 
 		foreach ( $params['client'] as $key => $value ) {
@@ -190,12 +218,12 @@ class Chip_Givewp_Purchase {
 
 		$params = apply_filters( 'gwp_chip_purchase_params', $params, $payment_data, $this );
 
-		$chip = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
+		$chip    = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
 		$payment = $chip->create_payment( $params );
 
 		if ( ! array_key_exists( 'id', $payment ) ) {
 			/* translators: CHIP create_payment response */
-			Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), wp_json_encode( $payment, true ) ) );
+			Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), wp_json_encode( $payment ) ) );
 
 			give_insert_payment_note( $donation_id, __( 'Failed to create purchase.', 'chip-for-givewp' ) );
 			give_send_back_to_checkout( '?payment-mode=chip' );
@@ -217,7 +245,7 @@ class Chip_Givewp_Purchase {
 	}
 
 	private function get_timezone() {
-		if ( preg_match( '/^[A-z]+\/[A-z\_\/\-]+$/', wp_timezone_string() ) ) {
+		if ( preg_match( '/^[A-Za-z]+\/[A-Za-z\_\/\-]+$/', wp_timezone_string() ) ) {
 			return wp_timezone_string();
 		}
 

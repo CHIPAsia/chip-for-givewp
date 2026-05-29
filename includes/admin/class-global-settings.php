@@ -1,4 +1,5 @@
 <?php
+defined( 'ABSPATH' ) || exit;
 
 class Chip_Givewp_Admin_Global_Settings extends Chip_Givewp_Admin_Settings {
 
@@ -25,7 +26,7 @@ class Chip_Givewp_Admin_Global_Settings extends Chip_Givewp_Admin_Settings {
 			case 'chip-settings':
 				$settings = array(
 					array(
-						'id' => 'give_title_chip',
+						'id'   => 'give_title_chip',
 						'type' => 'title',
 					),
 				);
@@ -33,7 +34,7 @@ class Chip_Givewp_Admin_Global_Settings extends Chip_Givewp_Admin_Settings {
 				$settings = array_merge( $settings, $this->setting_fields() );
 
 				$settings[] = array(
-					'id' => 'give_title_chip',
+					'id'   => 'give_title_chip',
 					'type' => 'sectionend',
 				);
 
