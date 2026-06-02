@@ -112,6 +112,7 @@ jobs:
         continue-on-error: false
 
   # Tier 3: Plugin Check (needs build artifact)
+  # Manual wp-env approach — upstream plugin-check-action is broken (#579).
 
   plugin-check:
     name: Plugin Check
@@ -119,18 +120,53 @@ jobs:
     needs: [build, php-compatibility, phpcs, phpunit]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
           name: chip-for-givewp-build
           path: ./build
 
-      # TEMP: Plugin Check is allowed to fail due to upstream bug:
-      # https://github.com/WordPress/plugin-check-action/issues/579
-      # TODO: Remove continue-on-error once the issue is resolved.
-      - name: Run Plugin Check
-        uses: wordpress/plugin-check-action@v1
-        continue-on-error: true
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          build-dir: './build/chip-for-givewp'
-          exclude-directories: 'vendor,node_modules'
+          node-version: '20'
+
+      - name: Install @wordpress/env
+        run: npm install -g @wordpress/env
+
+      - name: Create wp-env override for CI
+        run: |
+          cat > .wp-env.override.json <<'JSONEOF'
+          {
+            "core": null,
+            "plugins": [
+              "https://downloads.wordpress.org/plugin/give.zip",
+              "https://downloads.wordpress.org/plugin/plugin-check.zip"
+            ],
+            "mappings": {
+              "wp-content/plugins/chip-for-givewp": "./build/chip-for-givewp"
+            }
+          }
+          JSONEOF
+          cat .wp-env.override.json
+
+      - name: Start WordPress environment
+        run: |
+          npx wp-env start --update
+          # Give containers time to stabilize
+          sleep 10
+
+      - name: Activate Plugin Check
+        run: |
+          npx wp-env run cli wp plugin activate plugin-check
+
+      - name: Run Plugin Check
+        run: |
+          npx wp-env run cli wp plugin-check chip-for-givewp
+
+      - name: Stop WordPress environment
+        if: always()
+        run: npx wp-env stop
