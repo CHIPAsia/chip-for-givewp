@@ -138,6 +138,32 @@ class Chip_Givewp_Listener {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP redirect/callback has no nonce; donation_id is sanitized below.
 		$donation_id = absint( $_GET['donation_id'] );
 
+		$form_id       = give_get_payment_form_id( $donation_id );
+		$customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
+
+		$prefix = '';
+		if ( give_is_setting_enabled( $customization ) ) {
+			$prefix = '_give_';
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP redirect has no nonce; status is sanitized below.
+		$redirect_status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
+
+		// User explicitly cancelled on CHIP checkout page.
+		if ( 'cancel' === $redirect_status ) {
+			Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __( 'Donor cancelled the payment on CHIP checkout', 'chip-for-givewp' ) );
+			give_update_payment_status( $donation_id, 'cancelled' );
+
+			$cancel_url = Chip_Givewp_Helper::get_fields( $form_id, 'chip-cancel-url', $prefix );
+			if ( $cancel_url && filter_var( $cancel_url, FILTER_VALIDATE_URL ) ) {
+				// phpcs:ignore WordPress.Security.SafeRedirect -- Cancel URL is user-configured and validated via FILTER_VALIDATE_URL.
+				wp_redirect( $cancel_url );
+			} else {
+				wp_safe_redirect( give_get_failed_transaction_uri( '?payment-id=' . $donation_id ) );
+			}
+			exit;
+		}
+
 		$payment_gateway = give_get_payment_gateway( $donation_id );
 
 		$chip_block_view = false;
@@ -154,14 +180,6 @@ class Chip_Givewp_Listener {
 		}
 
 		$payment_id = give_get_meta( $donation_id, '_chip_purchase_id', true, false, 'donation' );
-
-		$form_id       = give_get_payment_form_id( $donation_id );
-		$customization = give_get_meta( $form_id, '_give_customize_chip_donations', true );
-
-		$prefix = '';
-		if ( give_is_setting_enabled( $customization ) ) {
-			$prefix = '_give_';
-		}
 
 		$secret_key = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
 

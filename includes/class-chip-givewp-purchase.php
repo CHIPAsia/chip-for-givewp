@@ -226,6 +226,12 @@ class Chip_Givewp_Purchase {
 					'status'      => 'error',
 				)
 			),
+			'cancel_redirect'  => $listener->get_redirect_url(
+				array(
+					'donation_id' => $donation_id,
+					'status'      => 'cancel',
+				)
+			),
 			'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
 			'reference'        => substr( $donation_id, 0, 128 ),
 			'platform'         => 'givewp',

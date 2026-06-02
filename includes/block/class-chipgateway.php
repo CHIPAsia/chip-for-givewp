@@ -197,6 +197,12 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 					'status'      => 'error',
 				)
 			),
+			'cancel_redirect'  => $listener->get_redirect_url(
+				array(
+					'donation_id' => $donation->id,
+					'status'      => 'cancel',
+				)
+			),
 			'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
 			'reference'        => substr( $donation->id, 0, 128 ),
 			'platform'         => 'givewp',
