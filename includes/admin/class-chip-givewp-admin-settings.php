@@ -83,6 +83,12 @@ abstract class Chip_Givewp_Admin_Settings {
 				'id'   => $prefix . 'chip-cancel-url',
 				'type' => 'text',
 			),
+			array(
+				'name' => __( 'Success URL', 'chip-for-givewp' ),
+				'desc' => __( 'Redirect to a custom URL when the payment is successful. Leaving this blank will redirect to the default donation confirmation page.', 'chip-for-givewp' ),
+				'id'   => $prefix . 'chip-success-url',
+				'type' => 'text',
+			),
 		);
 
 		if ( ! empty( $prefix ) ) {

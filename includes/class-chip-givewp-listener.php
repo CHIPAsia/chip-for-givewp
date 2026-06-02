@@ -320,7 +320,13 @@ class Chip_Givewp_Listener {
 
 		Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __( 'Processing completed', 'chip-for-givewp' ), $payment );
 
-		wp_safe_redirect( $return );
+		$success_url = Chip_Givewp_Helper::get_fields( $form_id, 'chip-success-url', $prefix );
+		if ( $success_url && filter_var( $success_url, FILTER_VALIDATE_URL ) ) {
+			// phpcs:ignore WordPress.Security.SafeRedirect -- Success URL is user-configured and validated via FILTER_VALIDATE_URL.
+			wp_redirect( $success_url );
+		} else {
+			wp_safe_redirect( $return );
+		}
 		exit;
 	}
 }
