@@ -129,11 +129,12 @@ jobs:
           name: chip-for-givewp-build
           path: ./build
 
-      # Testing Node 26 compatibility with @wordpress/env.
+      # Node 24+ breaks @wordpress/env ("Environment not initialized").
+      # Node 22 is the latest version confirmed working.
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '26'
+          node-version: '22'
 
       - name: Install @wordpress/env
         run: npm install -g @wordpress/env
