@@ -165,7 +165,7 @@ jobs:
 
       - name: Run Plugin Check
         run: |
-          npx wp-env run cli wp plugin-check chip-for-givewp
+          npx wp-env run cli wp plugin check chip-for-givewp
 
       - name: Stop WordPress environment
         if: always()
