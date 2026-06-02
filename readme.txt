@@ -1,10 +1,10 @@
 === CHIP for GiveWP ===
 Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
-Requires at least: 4.7
-Tested up to: 6.7
-Stable tag: 1.2.1
-Requires PHP: 7.2
+Requires at least: 6.3
+Tested up to: 7.0
+Stable tag: 1.3.0
+Requires PHP: 7.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -21,7 +21,7 @@ operational complexity, and drive growth.
 
 With CHIP, you gain a financial partner committed to simplifying, digitizing, and enhancing your financial operations for ultimate success.
 
-This plugin will enable your GiveWP site to be integrated with CHIP as per documented in [API Documentation](https://docs.chip-in.asia).
+This plugin will enable your GiveWP site to be integrated with CHIP as documented in the [API Documentation](https://docs.chip-in.asia).
 
 == Screenshots ==
 * Fill up the form with Brand ID and Secret Key. Tick Enable API and Save changes to activate.
@@ -32,9 +32,26 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 == Changelog ==
 
-= 1.2.1 - 2025-02-07 =
-* Fixed - Issue with Option-Based Form Editor where payment info show escaped output.
-* Fixed - Remove filtering for webhook to prevent unpredictable failure for openssl_verify.
+= 1.3.0 - 2026-06-02 =
+* Added - Payment method whitelist setting to restrict available CHIP checkout methods.
+* Added - Success URL and Cancel URL redirect configuration.
+* Added - Cancel redirect parameter for CHIP purchase creation.
+* Fixed - API singleton now returns a new instance to prevent credential caching across forms.
+* Fixed - Refund button now appears for GiveWP 3.0 Visual Form Builder (chip_block) donations.
+* Fixed - Corrected refund guard meta key lookup.
+* Fixed - Street address concatenation precedence issue with null coalescing.
+* Fixed - Timezone regex to use proper A-Za-z character class.
+* Fixed - wp_json_encode parameter misuse.
+* Changed - Requires PHP bumped to 7.4.
+* Changed - Tested up to WordPress 7.0.
+* Changed - Added ABSPATH guards to all PHP files.
+* Changed - Replaced sizeof() with count().
+* Changed - Block gateway now explicitly implements PaymentGatewayRefundable interface.
+* Changed - Updated getLegacyFormFieldMarkup signature for GiveWP 4.x compatibility.
+* Changed - Settings reorganized into sections: Credentials, Display, Timing, Redirects, and Payment Methods.
+* Changed - Requires at least WordPress bumped to 6.3.
+
+[See changelog for all versions](https://github.com/CHIPAsia/chip-for-givewp/releases).
 
 == Installation ==
 
@@ -44,11 +61,11 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 = Minimum Requirements =
 
-* WordPress 4.7 or greater
+* WordPress 6.3 or greater
 
 = Automatic installation =
 
-Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t need to leave your web browser. To do an automatic install of, log in to your WordPress dashboard, navigate to the Plugins menu and click Add New.
+Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t need to leave your web browser. To do an automatic install of CHIP for GiveWP, log in to your WordPress dashboard, navigate to the Plugins menu and click Add New.
 
 In the search field type "CHIP for GiveWP" and click Search Plugins. Once you’ve found our plugin you can view details about it such as the point release, rating and description. Most importantly of course, you can install it by simply clicking “Install Now”.
 
@@ -65,7 +82,7 @@ Automatic updates should work like a charm; as always though, ensure you backup 
 
 = Where is the Brand ID and Secret Key located? =
 
-Brand ID and Secret Key available through our merchant dashboard.
+Brand ID and Secret Key are available through our merchant dashboard.
 
 = Do I need to set public key for webhook? =
 
@@ -77,7 +94,7 @@ You can visit our [API documentation](https://docs.chip-in.asia/) for your refer
 
 = What CHIP API services used in this plugin? =
 
-This plugin rely on CHIP API ([GIVE_CHIP_ROOT_URL](https://gate.chip-in.asia)) as follows:
+This plugin relies on the CHIP API ([GWP_CHIP_ROOT_URL](https://gate.chip-in.asia)) as follows:
 
   - **/purchases/**
     - This is for accepting payment

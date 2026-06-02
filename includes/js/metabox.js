@@ -12,18 +12,22 @@ jQuery( function ( $ ) {
       $("._give_chip-secret-key_field").show();
       $("._give_chip-test-secret-key_field").show();
       $("._give_chip-brand-id_field").show();
-      $("._give_chip-send-receipt_field").show();
       $("._give_chip-due-strict_field").show();
       $("._give_chip-due-strict-timing_field").show();
+      $("._give_chip-success-url_field").show();
+      $("._give_chip-cancel-url_field").show();
+      $("._give_chip-payment-method-whitelist_field").show();
     } else {
       $("._give_chip-enable-billing-fields_field").hide();
       $("._give_chip-content_field").hide();
       $("._give_chip-secret-key_field").hide();
       $("._give_chip-test-secret-key_field").hide();
       $("._give_chip-brand-id_field").hide();
-      $("._give_chip-send-receipt_field").hide();
       $("._give_chip-due-strict_field").hide();
       $("._give_chip-due-strict-timing_field").hide();
+      $("._give_chip-success-url_field").hide();
+      $("._give_chip-cancel-url_field").hide();
+      $("._give_chip-payment-method-whitelist_field").hide();
     }
   }
 });

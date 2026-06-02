@@ -12,18 +12,22 @@
     const ReactElement = (type, props = {}, ...childs) => {
       return Object(createElement)(type, props, ...childs);
     }
-  
+
     /**
      * Rendering gateway fields (without jsx).
      *
-     * This renders a simple div with a label and input.
+     * This renders a simple span with the customizable CHIP message.
      *
      * @see https://react.dev/reference/react/createElement
      */
     function ChipGatewayFields() {
-      return ReactElement("span", null,  __("You will be redirected to CHIP Payment Gateway.", "chip-for-givewp"));
+      const content = window.gwp_chip_block && window.gwp_chip_block.content
+        ? window.gwp_chip_block.content
+        : __( "Complete your donation securely. You will be redirected to CHIP's payment page to finalize your transaction.", "chip-for-givewp" );
+
+      return ReactElement("span", { dangerouslySetInnerHTML: { __html: content } });
     }
-  
+
     /**
      * Front-end gateway object.
      */
@@ -33,16 +37,15 @@
         //console.log(values)
         return {
           chipGatewayIntent: 'chip-gateway-intent',
-        };  
+        };
       },
       Fields() {
         return ReactElement(ChipGatewayFields);
       },
     };
-  
+
     /**
      * The final step is to register the front-end gateway with GiveWP.
      */
     window.givewp.gateways.register(ChipGateway);
   })();
-  

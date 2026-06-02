@@ -1,0 +1,33 @@
+name: Create Release Zip
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-and-release:
+    name: Build and Upload Release Zip
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Prepare plugin folder
+        run: |
+          # Same structure as plugin-check: folder name MUST match the plugin slug for WordPress
+          mkdir -p dist/chip-for-givewp
+          git archive HEAD | tar -x -C dist/chip-for-givewp
+          echo "✅ Prepared plugin folder"
+          ls -la dist/chip-for-givewp/
+
+      - name: Create zip file
+        run: |
+          cd dist && zip -r ../chip-for-givewp.zip chip-for-givewp
+          echo "✅ Created chip-for-givewp.zip (root folder: chip-for-givewp/)"
+
+      - name: Upload release asset
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" chip-for-givewp.zip --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

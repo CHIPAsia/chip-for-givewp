@@ -1,1 +1,20 @@
 **/.DS_Store
+
+package-lock.json
+yarn.lock
+composer.lock
+/node_modules/
+
+# Local plugin-check / release artifacts
+/dist/
+/build/
+ci-build/
+
+# Composer and PHPUnit
+/vendor/
+.phpunit.cache
+.phpunit.result.cache
+
+# Release workflow temporary files
+diff.txt
+changelog_entry.md
