@@ -53,6 +53,9 @@ class Chip_Givewp_Block {
 				$registrar->registerGateway( ChipGateway::class );
 			}
 		);
+
+		include plugin_dir_path( GWP_CHIP_FILE ) . 'includes/block/Actions/class-chip-givewp-enqueue-form-builder-scripts.php';
+		add_action( 'givewp_form_builder_enqueue_scripts', new Chip_Givewp_Enqueue_Form_Builder_Scripts() );
 	}
 
 	/**
