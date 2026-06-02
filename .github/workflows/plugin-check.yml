@@ -168,10 +168,11 @@ jobs:
           # Run plugin check and output JSON for parsing.
           # Ignore trademarked_term: the plugin name "CHIP for GiveWP" and slug "chip-for-givewp"
           # contain "wp" which is already published on WordPress.org and cannot be changed.
+          # wp-env run cli prepends status text to stdout; filter only JSON lines.
           npx wp-env run cli wp plugin check chip-for-givewp \
             --format=json \
             --ignore-codes=trademarked_term \
-            > /tmp/plugin-check-results.json
+            | grep -E '^\[|^\{' > /tmp/plugin-check-results.json
 
           # Display results in a readable table format.
           npx wp-env run cli wp plugin check chip-for-givewp \
