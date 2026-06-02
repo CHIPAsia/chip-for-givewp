@@ -168,15 +168,18 @@ jobs:
           # Run plugin check and output JSON for parsing.
           # Ignore trademarked_term: the plugin name "CHIP for GiveWP" and slug "chip-for-givewp"
           # contain "wp" which is already published on WordPress.org and cannot be changed.
+          # Ignore NonPrefixedHooknameFound: all instances are GiveWP core hooks
+          # (give_forms_content_options_select, give_before_chip_info_fields, etc.)
+          # that third-party gateways are expected to use.
           # wp-env run cli prepends status text to stdout; filter only JSON lines.
           npx wp-env run cli wp plugin check chip-for-givewp \
             --format=json \
-            --ignore-codes=trademarked_term \
+            --ignore-codes=trademarked_term,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound \
             | grep -E '^\[|^\{' > /tmp/plugin-check-results.json
 
           # Display results in a readable table format.
           npx wp-env run cli wp plugin check chip-for-givewp \
-            --ignore-codes=trademarked_term
+            --ignore-codes=trademarked_term,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
           # Parse JSON to count errors and warnings.
           ERRORS=$(jq '[.[] | select(.type == "ERROR")] | length' /tmp/plugin-check-results.json)
