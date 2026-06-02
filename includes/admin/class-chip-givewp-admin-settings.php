@@ -128,6 +128,41 @@ abstract class Chip_Givewp_Admin_Settings {
 				'id'   => 'give_title_chip_redirects',
 				'type' => 'sectionend',
 			),
+
+			// Section: Payment Methods.
+			array(
+				'id'   => 'give_title_chip_payment_methods',
+				'type' => 'title',
+			),
+			array(
+				'name'    => __( 'Payment Method Whitelist', 'chip-for-givewp' ),
+				'desc'    => __( 'Restrict the available payment methods on CHIP checkout. Leave all unchecked to allow all methods supported by your brand.', 'chip-for-givewp' ),
+				'id'      => $prefix . 'chip-payment-method-whitelist',
+				'type'    => 'multicheck',
+				'options' => array(
+					'fpx'             => __( 'FPX', 'chip-for-givewp' ),
+					'fpx_b2b1'        => __( 'FPX B2B1', 'chip-for-givewp' ),
+					'crypto_coin'     => __( 'Crypto', 'chip-for-givewp' ),
+					'dnqr'            => __( 'DuitNow QR', 'chip-for-givewp' ),
+					'duitnow_qr'      => __( 'DuitNow QR (Legacy)', 'chip-for-givewp' ),
+					'maestro'         => __( 'Maestro', 'chip-for-givewp' ),
+					'mastercard'      => __( 'Mastercard', 'chip-for-givewp' ),
+					'mpgs_apple_pay'  => __( 'Apple Pay', 'chip-for-givewp' ),
+					'mpgs_google_pay' => __( 'Google Pay', 'chip-for-givewp' ),
+					'razer'           => __( 'Razer', 'chip-for-givewp' ),
+					'razer_atome'     => __( 'Atome', 'chip-for-givewp' ),
+					'razer_grabpay'   => __( 'GrabPay', 'chip-for-givewp' ),
+					'razer_maybankqr' => __( 'Maybank QR', 'chip-for-givewp' ),
+					'razer_shopeepay' => __( 'ShopeePay', 'chip-for-givewp' ),
+					'razer_tng'       => __( 'Touch \'n Go', 'chip-for-givewp' ),
+					'shopee_pay'      => __( 'Shopee Pay', 'chip-for-givewp' ),
+					'visa'            => __( 'Visa', 'chip-for-givewp' ),
+				),
+			),
+			array(
+				'id'   => 'give_title_chip_payment_methods',
+				'type' => 'sectionend',
+			),
 		);
 
 		if ( ! empty( $prefix ) ) {
