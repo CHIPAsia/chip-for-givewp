@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // This is the CHIP API URL endpoint as documented in https://docs.chip-in.asia.
-define( 'GIVE_CHIP_ROOT_URL', 'https://gate.chip-in.asia' );
+define( 'GWP_CHIP_ROOT_URL', 'https://gate.chip-in.asia' );
 
 /**
  * CHIP API client class.
@@ -187,7 +187,7 @@ class Chip_Givewp_API {
 
 		$response = $this->request(
 			$method,
-			sprintf( '%s/api/v1%s', GIVE_CHIP_ROOT_URL, $route ),
+			sprintf( '%s/api/v1%s', GWP_CHIP_ROOT_URL, $route ),
 			$params,
 			array(
 				'Content-type'  => 'application/json',

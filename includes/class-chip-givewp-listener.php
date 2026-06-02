@@ -82,10 +82,12 @@ class Chip_Givewp_Listener {
 	 * Handles the customer redirect after payment.
 	 */
 	public function handle_redirect() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP redirect has no nonce; validated via passphrase.
 		if ( ! isset( $_GET[ self::REDIRECT_KEY ] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP redirect has no nonce; validated via passphrase.
 		if ( self::REDIRECT_PASSPHRASE !== $_GET[ self::REDIRECT_KEY ] ) {
 			return;
 		}
@@ -99,6 +101,7 @@ class Chip_Givewp_Listener {
 	 * Handles the CHIP webhook callback.
 	 */
 	public function handle_callback() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP webhook has no nonce; validated via shared passphrase.
 		if ( ! isset( $_GET[ self::CALLBACK_KEY ] ) ) {
 			return;
 		}
@@ -108,6 +111,7 @@ class Chip_Givewp_Listener {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP webhook has no nonce; validated via shared passphrase.
 		if ( $passphrase !== $_GET[ self::CALLBACK_KEY ] ) {
 			/* translators: 1: Callback failed */
 			Chip_Givewp_Helper::log( null, LogType::NOTICE, __( 'Callback failed due to invalid passphrase: %1$s', 'chip-for-givewp' ) );
@@ -124,12 +128,14 @@ class Chip_Givewp_Listener {
 	 * Processes the payment status update.
 	 */
 	private function handle_processing() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP redirect/callback has no nonce; validated via passphrase above.
 		if ( ! isset( $_GET['donation_id'] ) ) {
 			Chip_Givewp_Helper::log( null, LogType::ERROR, __( 'Processing halted due to empty donation id', 'chip-for-givewp' ) );
 			status_header( 403 );
 			exit;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- CHIP redirect/callback has no nonce; donation_id is sanitized below.
 		$donation_id = absint( $_GET['donation_id'] );
 
 		$payment_gateway = give_get_payment_gateway( $donation_id );

@@ -316,7 +316,7 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 				)
 			);
 
-			// phpcs:ignore WordPress.NamingConventions.ValidHookName
+			// phpcs:ignore WordPress.NamingConventions.ValidHookName,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GiveWP core action for donor note emails.
 			do_action( 'give_donor-note_email_notification', $note_id, $donation_id );
 
 		} catch ( \Exception $e ) {

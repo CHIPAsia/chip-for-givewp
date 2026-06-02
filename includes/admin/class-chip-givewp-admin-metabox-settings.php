@@ -102,6 +102,7 @@ class Chip_Givewp_Admin_Metabox_Settings extends Chip_Givewp_Admin_Settings {
 				'id'      => '_give_customize_chip_donations',
 				'type'    => 'radio_inline',
 				'default' => 'global',
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GiveWP core filter for form content options.
 				'options' => apply_filters(
 					'give_forms_content_options_select',
 					array(

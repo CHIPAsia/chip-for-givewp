@@ -157,7 +157,7 @@ class Chip_Givewp_Refund_Button {
 			)
 		);
 
-		// phpcs:ignore WordPress.NamingConventions.ValidHookName
+		// phpcs:ignore WordPress.NamingConventions.ValidHookName,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GiveWP core action for donor note emails.
 		do_action( 'give_donor-note_email_notification', $note_id, $donation_id );
 
 		die( esc_html( give_get_payment_note_html( $note_id ) ) );

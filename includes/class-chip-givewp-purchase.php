@@ -52,6 +52,7 @@ class Chip_Givewp_Purchase {
 
 		ob_start();
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GiveWP core hook for gateway field rendering.
 		do_action( 'give_before_chip_info_fields', $form_id );
 		?>
 		<fieldset class="no-fields" id="give_chip_payment_info">
@@ -59,6 +60,7 @@ class Chip_Givewp_Purchase {
 		</fieldset>
 		<?php
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GiveWP core hook for gateway field rendering.
 		do_action( 'give_after_chip_info_fields', $form_id );
 
 		echo wp_kses_post( ob_get_clean() );
