@@ -129,13 +129,11 @@ jobs:
           name: chip-for-givewp-build
           path: ./build
 
-      # Node 24 is not yet compatible with @wordpress/env (fails with
-      # "Environment not initialized"). Re-try after upstream fixes.
-      # https://github.com/WordPress/gutenberg/issues/63170
+      # Testing Node 22 compatibility with @wordpress/env.
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install @wordpress/env
         run: npm install -g @wordpress/env
