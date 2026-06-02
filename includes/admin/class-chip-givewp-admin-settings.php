@@ -20,26 +20,10 @@ abstract class Chip_Givewp_Admin_Settings {
 	 */
 	public function setting_fields( $prefix = '' ) {
 		$array = array(
+			// Section: Credentials.
 			array(
-				'name'    => __( 'Collect Billing Details', 'chip-for-givewp' ),
-				'desc'    => __( 'If enabled, required billing address fields are added to Donation forms. These fields are not required to process the transaction, but you may have a need to collect the data. Billing address details are added to both the donation and donor record in GiveWP. ', 'chip-for-givewp' ),
-				'id'      => $prefix . 'chip-enable-billing-fields',
-				'type'    => 'radio_inline',
-				'default' => 'disabled',
-				'options' => array(
-					'enabled'  => __( 'Enabled', 'chip-for-givewp' ),
-					'disabled' => __( 'Disabled', 'chip-for-givewp' ),
-				),
-			),
-			array(
-				'name'    => __( 'Donation Instructions', 'chip-for-givewp' ),
-				'desc'    => __( 'The Donation Instructions are a chance for you to educate the donor on how to best submit donations. These instructions appear directly on the form, and after submission of the form. Note: You may also customize the instructions on individual forms as needed.', 'chip-for-givewp' ),
-				'id'      => $prefix . 'chip-content',
-				'default' => 'Complete your donation securely. You will be redirected to CHIP\'s payment page to finalize your transaction.',
-				'type'    => 'wysiwyg',
-				'options' => array(
-					'textarea_rows' => 6,
-				),
+				'id'   => 'give_title_chip_credentials',
+				'type' => 'title',
 			),
 			array(
 				'name' => __( 'Secret Key', 'chip-for-givewp' ),
@@ -60,6 +44,47 @@ abstract class Chip_Givewp_Admin_Settings {
 				'type' => 'text',
 			),
 			array(
+				'id'   => 'give_title_chip_credentials',
+				'type' => 'sectionend',
+			),
+
+			// Section: Donation Display.
+			array(
+				'id'   => 'give_title_chip_display',
+				'type' => 'title',
+			),
+			array(
+				'name'    => __( 'Donation Instructions', 'chip-for-givewp' ),
+				'desc'    => __( 'The Donation Instructions are a chance for you to educate the donor on how to best submit donations. These instructions appear directly on the form, and after submission of the form. Note: You may also customize the instructions on individual forms as needed.', 'chip-for-givewp' ),
+				'id'      => $prefix . 'chip-content',
+				'default' => 'Complete your donation securely. You will be redirected to CHIP\'s payment page to finalize your transaction.',
+				'type'    => 'wysiwyg',
+				'options' => array(
+					'textarea_rows' => 6,
+				),
+			),
+			array(
+				'name'    => __( 'Collect Billing Details', 'chip-for-givewp' ),
+				'desc'    => __( 'If enabled, required billing address fields are added to Donation forms. These fields are not required to process the transaction, but you may have a need to collect the data. Billing address details are added to both the donation and donor record in GiveWP. ', 'chip-for-givewp' ),
+				'id'      => $prefix . 'chip-enable-billing-fields',
+				'type'    => 'radio_inline',
+				'default' => 'disabled',
+				'options' => array(
+					'enabled'  => __( 'Enabled', 'chip-for-givewp' ),
+					'disabled' => __( 'Disabled', 'chip-for-givewp' ),
+				),
+			),
+			array(
+				'id'   => 'give_title_chip_display',
+				'type' => 'sectionend',
+			),
+
+			// Section: Payment Timing.
+			array(
+				'id'   => 'give_title_chip_timing',
+				'type' => 'title',
+			),
+			array(
 				'name'    => __( 'Due Strict', 'chip-for-givewp' ),
 				'desc'    => __( "Whether to permit payments when Purchase's due has passed.", 'chip-for-givewp' ),
 				'id'      => $prefix . 'chip-due-strict',
@@ -78,16 +103,30 @@ abstract class Chip_Givewp_Admin_Settings {
 				'type'    => 'number',
 			),
 			array(
-				'name' => __( 'Cancel URL', 'chip-for-givewp' ),
-				'desc' => __( 'Redirect to a custom URL when the customer cancels. Leaving this blank will redirect back to the donation form.', 'chip-for-givewp' ),
-				'id'   => $prefix . 'chip-cancel-url',
-				'type' => 'text',
+				'id'   => 'give_title_chip_timing',
+				'type' => 'sectionend',
+			),
+
+			// Section: Redirects.
+			array(
+				'id'   => 'give_title_chip_redirects',
+				'type' => 'title',
 			),
 			array(
 				'name' => __( 'Success URL', 'chip-for-givewp' ),
 				'desc' => __( 'Redirect to a custom URL when the payment is successful. Leaving this blank will redirect to the default donation confirmation page.', 'chip-for-givewp' ),
 				'id'   => $prefix . 'chip-success-url',
 				'type' => 'text',
+			),
+			array(
+				'name' => __( 'Cancel URL', 'chip-for-givewp' ),
+				'desc' => __( 'Redirect to a custom URL when the customer cancels. Leaving this blank will redirect back to the donation form.', 'chip-for-givewp' ),
+				'id'   => $prefix . 'chip-cancel-url',
+				'type' => 'text',
+			),
+			array(
+				'id'   => 'give_title_chip_redirects',
+				'type' => 'sectionend',
 			),
 		);
 

@@ -36,7 +36,7 @@
 						el(
 							'p',
 							{ className: 'description' },
-							__( 'Configure Brand ID, Secret Key, Donation Instructions and Cancel URL for this form.', 'chip-for-givewp' )
+							__( 'Configure CHIP credentials, donation display, payment timing, and redirect URLs for this form.', 'chip-for-givewp' )
 						),
 						el(
 							Button,
