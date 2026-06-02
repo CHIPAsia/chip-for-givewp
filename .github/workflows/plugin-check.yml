@@ -129,11 +129,11 @@ jobs:
           name: chip-for-givewp-build
           path: ./build
 
-      # Testing Node 22 compatibility with @wordpress/env.
+      # Testing Node 26 compatibility with @wordpress/env.
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '26'
 
       - name: Install @wordpress/env
         run: npm install -g @wordpress/env
