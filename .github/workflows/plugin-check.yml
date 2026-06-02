@@ -172,10 +172,11 @@ jobs:
           # (give_forms_content_options_select, give_before_chip_info_fields, etc.)
           # that third-party gateways are expected to use.
           # wp-env run cli prepends status text to stdout; filter only JSON lines.
+          # WP CLI may return exit code 1 even with --ignore-codes; use || true and rely on jq parsing.
           npx wp-env run cli wp plugin check chip-for-givewp \
             --format=json \
             --ignore-codes=trademarked_term,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound \
-            | grep -E '^\[|^\{' > /tmp/plugin-check-results.json
+            2>/dev/null | grep -E '^\[|^\{' > /tmp/plugin-check-results.json || true
 
           # Display results in a readable table format.
           npx wp-env run cli wp plugin check chip-for-givewp \
