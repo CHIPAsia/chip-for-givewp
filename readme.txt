@@ -32,7 +32,10 @@ This plugin will enable your GiveWP site to be integrated with CHIP as documente
 
 == Changelog ==
 
-= 1.3.0 - 2026-05-29 =
+= 1.3.0 - 2026-06-02 =
+* Added - Payment method whitelist setting to restrict available CHIP checkout methods.
+* Added - Success URL and Cancel URL redirect configuration.
+* Added - Cancel redirect parameter for CHIP purchase creation.
 * Fixed - API singleton now returns a new instance to prevent credential caching across forms.
 * Fixed - Refund button now appears for GiveWP 3.0 Visual Form Builder (chip_block) donations.
 * Fixed - Corrected refund guard meta key lookup.
@@ -45,6 +48,7 @@ This plugin will enable your GiveWP site to be integrated with CHIP as documente
 * Changed - Replaced sizeof() with count().
 * Changed - Block gateway now explicitly implements PaymentGatewayRefundable interface.
 * Changed - Updated getLegacyFormFieldMarkup signature for GiveWP 4.x compatibility.
+* Changed - Settings reorganized into sections: Credentials, Display, Timing, Redirects, and Payment Methods.
 * Changed - Requires at least WordPress bumped to 6.3.
 
 [See changelog for all versions](https://github.com/CHIPAsia/chip-for-givewp/releases).
