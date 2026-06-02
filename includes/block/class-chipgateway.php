@@ -136,7 +136,6 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 		$secret_key        = give_is_test_mode() ? Chip_Givewp_Helper::get_fields( $form_id, 'chip-test-secret-key', $prefix ) : Chip_Givewp_Helper::get_fields( $form_id, 'chip-secret-key', $prefix );
 		$due_strict        = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict', $prefix );
 		$due_strict_timing = Chip_Givewp_Helper::get_fields( $form_id, 'chip-due-strict-timing', $prefix );
-		$send_receipt      = Chip_Givewp_Helper::get_fields( $form_id, 'chip-send-receipt', $prefix );
 		$brand_id          = Chip_Givewp_Helper::get_fields( $form_id, 'chip-brand-id', $prefix );
 		$billing_fields    = Chip_Givewp_Helper::get_fields( $form_id, 'chip-enable-billing-fields', $prefix );
 		$currency          = give_get_currency( $form_id );
@@ -174,7 +173,6 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 			'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
 			'reference'        => substr( $donation->id, 0, 128 ),
 			'platform'         => 'givewp',
-			'send_receipt'     => give_is_setting_enabled( $send_receipt ),
 			'due'              => time() + ( absint( $due_strict_timing ) * 60 ),
 			'brand_id'         => $brand_id,
 			'client'           => array(

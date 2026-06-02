@@ -60,17 +60,6 @@ abstract class Chip_Givewp_Admin_Settings {
 				'type' => 'text',
 			),
 			array(
-				'name'    => __( 'Send Receipt', 'chip-for-givewp' ),
-				'desc'    => __( "Whether to send receipt email when it's paid.", 'chip-for-givewp' ),
-				'id'      => $prefix . 'chip-send-receipt',
-				'type'    => 'radio_inline',
-				'default' => 'enabled',
-				'options' => array(
-					'enabled'  => __( 'Enabled', 'chip-for-givewp' ),
-					'disabled' => __( 'Disabled', 'chip-for-givewp' ),
-				),
-			),
-			array(
 				'name'    => __( 'Due Strict', 'chip-for-givewp' ),
 				'desc'    => __( "Whether to permit payments when Purchase's due has passed.", 'chip-for-givewp' ),
 				'id'      => $prefix . 'chip-due-strict',
