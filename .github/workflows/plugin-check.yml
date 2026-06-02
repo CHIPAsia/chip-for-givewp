@@ -165,7 +165,37 @@ jobs:
 
       - name: Run Plugin Check
         run: |
-          npx wp-env run cli wp plugin check chip-for-givewp
+          # Run plugin check and output JSON for parsing.
+          # Ignore trademarked_term: the plugin name "CHIP for GiveWP" and slug "chip-for-givewp"
+          # contain "wp" which is already published on WordPress.org and cannot be changed.
+          npx wp-env run cli wp plugin check chip-for-givewp \
+            --format=json \
+            --ignore-codes=trademarked_term \
+            > /tmp/plugin-check-results.json
+
+          # Display results in a readable table format.
+          npx wp-env run cli wp plugin check chip-for-givewp \
+            --ignore-codes=trademarked_term
+
+          # Parse JSON to count errors and warnings.
+          ERRORS=$(jq '[.[] | select(.type == "ERROR")] | length' /tmp/plugin-check-results.json)
+          WARNINGS=$(jq '[.[] | select(.type == "WARNING")] | length' /tmp/plugin-check-results.json)
+
+          echo ""
+          echo "═══════════════════════════════════════"
+          echo "  Plugin Check Summary"
+          echo "═══════════════════════════════════════"
+          echo "  Errors:   ${ERRORS}"
+          echo "  Warnings: ${WARNINGS}"
+
+          if [ "${ERRORS}" -gt 0 ] || [ "${WARNINGS}" -gt 0 ]; then
+            echo ""
+            echo "❌ Plugin Check failed with ${ERRORS} error(s) and ${WARNINGS} warning(s)"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ Plugin Check passed (no errors or warnings)"
 
       - name: Stop WordPress environment
         if: always()
