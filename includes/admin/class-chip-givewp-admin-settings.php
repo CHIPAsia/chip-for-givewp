@@ -149,7 +149,6 @@ abstract class Chip_Givewp_Admin_Settings {
 					'mastercard'      => __( 'Mastercard', 'chip-for-givewp' ),
 					'mpgs_apple_pay'  => __( 'Apple Pay', 'chip-for-givewp' ),
 					'mpgs_google_pay' => __( 'Google Pay', 'chip-for-givewp' ),
-					'razer'           => __( 'Razer', 'chip-for-givewp' ),
 					'razer_atome'     => __( 'Atome', 'chip-for-givewp' ),
 					'razer_grabpay'   => __( 'GrabPay', 'chip-for-givewp' ),
 					'razer_maybankqr' => __( 'Maybank QR', 'chip-for-givewp' ),
