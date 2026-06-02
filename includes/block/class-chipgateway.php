@@ -80,9 +80,20 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 	 * @return string
 	 */
 	public function getLegacyFormFieldMarkup( int $formId, array $args ): string {
-		return "<div class=''>
-            <p>You will be redirected to CHIP Payment Gateway</p>
-        </div>";
+		$customization = give_get_meta( $formId, '_give_customize_chip_donations', true );
+
+		$prefix = '';
+		if ( give_is_setting_enabled( $customization ) ) {
+			$prefix = '_give_';
+		}
+
+		$content = Chip_Givewp_Helper::get_fields( $formId, 'chip-content', $prefix );
+
+		if ( empty( $content ) ) {
+			$content = __( 'Complete your donation securely. You will be redirected to CHIP\'s payment page.', 'chip-for-givewp' );
+		}
+
+		return '<div class="give-chip-gateway-fields">' . wp_kses_post( $content ) . '</div>';
 	}
 
 	/**
