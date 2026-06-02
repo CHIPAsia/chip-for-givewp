@@ -228,7 +228,15 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 		);
 
 		if ( is_array( $payment_method_whitelist ) && ! empty( $payment_method_whitelist ) ) {
-			$params['payment_method_whitelist'] = array_values( $payment_method_whitelist );
+			$whitelist = array();
+			foreach ( $payment_method_whitelist as $method ) {
+				if ( 'cards' === $method ) {
+					$whitelist = array_merge( $whitelist, array( 'visa', 'mastercard', 'maestro' ) );
+				} else {
+					$whitelist[] = $method;
+				}
+			}
+			$params['payment_method_whitelist'] = array_values( array_unique( $whitelist ) );
 		}
 
 		// Try and catch response from CHIP.
