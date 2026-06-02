@@ -287,7 +287,8 @@ class Chip_Givewp_Purchase {
 		/* translators: 1: CHIP Checkout URL */
 		give_insert_payment_note( $donation_id, sprintf( __( 'URL: %1$s', 'chip-for-givewp' ), $payment['checkout_url'] ) );
 
-		wp_safe_redirect( esc_url_raw( apply_filters( 'gwp_chip_checkout_url', $payment['checkout_url'], $payment, $payment_data ) ) );
+		// phpcs:ignore WordPress.Security.SafeRedirect -- Checkout URL comes from trusted CHIP API via HTTPS.
+		wp_redirect( esc_url_raw( apply_filters( 'gwp_chip_checkout_url', $payment['checkout_url'], $payment, $payment_data ) ) );
 		give_die();
 	}
 

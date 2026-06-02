@@ -254,7 +254,8 @@ class Chip_Givewp_Listener {
 
 			$cancel_url = Chip_Givewp_Helper::get_fields( $form_id, 'chip-cancel-url', $prefix );
 			if ( $cancel_url && filter_var( $cancel_url, FILTER_VALIDATE_URL ) ) {
-				wp_safe_redirect( $cancel_url );
+				// phpcs:ignore WordPress.Security.SafeRedirect -- Cancel URL is user-configured and validated via FILTER_VALIDATE_URL.
+				wp_redirect( $cancel_url );
 			} else {
 				wp_safe_redirect( give_get_failed_transaction_uri( '?payment-id=' . $donation_id ) );
 			}
