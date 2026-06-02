@@ -300,7 +300,7 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 			// Refund in CHIP.
 			$payment = $chip->refund_payment( $payment_id );
 
-			// CHIP refund unsucessful.
+			// CHIP refund unsuccessful.
 			if ( ! is_array( $payment ) || ! array_key_exists( 'id', $payment ) ) {
 				/* translators: CHIP refund_payment API response */
 				$msg = sprintf( __( 'There was an error while refunding the payment. Details: %s', 'chip-for-givewp' ), wp_json_encode( $payment ) );

@@ -21,7 +21,7 @@ operational complexity, and drive growth.
 
 With CHIP, you gain a financial partner committed to simplifying, digitizing, and enhancing your financial operations for ultimate success.
 
-This plugin will enable your GiveWP site to be integrated with CHIP as per documented in [API Documentation](https://docs.chip-in.asia).
+This plugin will enable your GiveWP site to be integrated with CHIP as documented in the [API Documentation](https://docs.chip-in.asia).
 
 == Screenshots ==
 * Fill up the form with Brand ID and Secret Key. Tick Enable API and Save changes to activate.
@@ -61,7 +61,7 @@ This plugin will enable your GiveWP site to be integrated with CHIP as per docum
 
 = Automatic installation =
 
-Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t need to leave your web browser. To do an automatic install of, log in to your WordPress dashboard, navigate to the Plugins menu and click Add New.
+Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t need to leave your web browser. To do an automatic install of CHIP for GiveWP, log in to your WordPress dashboard, navigate to the Plugins menu and click Add New.
 
 In the search field type "CHIP for GiveWP" and click Search Plugins. Once you’ve found our plugin you can view details about it such as the point release, rating and description. Most importantly of course, you can install it by simply clicking “Install Now”.
 
@@ -78,7 +78,7 @@ Automatic updates should work like a charm; as always though, ensure you backup 
 
 = Where is the Brand ID and Secret Key located? =
 
-Brand ID and Secret Key available through our merchant dashboard.
+Brand ID and Secret Key are available through our merchant dashboard.
 
 = Do I need to set public key for webhook? =
 
@@ -90,7 +90,7 @@ You can visit our [API documentation](https://docs.chip-in.asia/) for your refer
 
 = What CHIP API services used in this plugin? =
 
-This plugin rely on CHIP API ([GIVE_CHIP_ROOT_URL](https://gate.chip-in.asia)) as follows:
+This plugin relies on the CHIP API ([GWP_CHIP_ROOT_URL](https://gate.chip-in.asia)) as follows:
 
   - **/purchases/**
     - This is for accepting payment
