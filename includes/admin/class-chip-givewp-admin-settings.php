@@ -35,7 +35,7 @@ abstract class Chip_Givewp_Admin_Settings {
 				'name'    => __( 'Donation Instructions', 'chip-for-givewp' ),
 				'desc'    => __( 'The Donation Instructions are a chance for you to educate the donor on how to best submit donations. These instructions appear directly on the form, and after submission of the form. Note: You may also customize the instructions on individual forms as needed.', 'chip-for-givewp' ),
 				'id'      => $prefix . 'chip-content',
-				'default' => 'Pay with Online Banking/Credit Cards/Debit Cards',
+				'default' => 'Complete your donation securely. You will be redirected to CHIP\'s payment page to finalize your transaction.',
 				'type'    => 'wysiwyg',
 				'options' => array(
 					'textarea_rows' => 6,
