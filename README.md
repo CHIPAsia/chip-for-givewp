@@ -8,9 +8,10 @@ This module adds CHIP payment method option to your GiveWP.
 
 ## Installation
 
-* [Download zip file of Give plugin.](https://github.com/CHIPAsia/chip-for-givewp/archive/refs/heads/main.zip)
+* Download and activate the [GiveWP](https://wordpress.org/plugins/give/) plugin from WordPress.org.
+* [Download the latest CHIP for GiveWP zip.](https://github.com/CHIPAsia/chip-for-givewp/archive/refs/heads/main.zip)
 * Log in to your WordPress admin panel and go: **Plugins** -> **Add New**
-* Select **Upload Plugin**, choose zip file you downloaded in step 1 and press **Install Now**
+* Select **Upload Plugin**, choose the CHIP for GiveWP zip file you downloaded and press **Install Now**
 * Activate plugin
 
 ## Configuration
