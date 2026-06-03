@@ -74,7 +74,7 @@ Third-party gateways integrate via hooks such as:
 
 ## What Would Need to Be Built
 
-### 1. API Client Extensions (`includes/class-api.php`)
+### 1. API Client Extensions (`includes/class-chip-givewp-api.php`)
 
 Add three new methods to `Chip_Givewp_API`:
 
@@ -116,7 +116,7 @@ Because recurring only works with cards, when a form has recurring enabled:
 - Or show a clear message: *"Recurring donations are only available via credit / debit card."*
 
 This affects:
-- `includes/class-purchase.php` (legacy)
+- `includes/class-chip-givewp-purchase.php` (legacy)
 - `includes/block/class-chipgateway.php` (v3)
 
 ### 5. Subscription Management
@@ -125,7 +125,7 @@ This affects:
 - **Admin UI**: Hook into GiveWP's donation details page (similar to existing refund button)
 - **Donor UI**: GiveWP Recurring add-on provides this; gateway only needs to support the cancel hook
 
-### 6. Webhook / Listener Updates (`includes/class-listener.php`)
+### 6. Webhook / Listener Updates (`includes/class-chip-givewp-listener.php`)
 
 The existing listener handles one-time `success_callback`. For recurring:
 
@@ -139,11 +139,11 @@ The existing listener handles one-time `success_callback`. For recurring:
 
 | File | Change |
 |---|---|
-| `includes/class-api.php` | Add `charge_token`, `list_tokens`, `delete_token` |
-| `includes/class-purchase.php` | Detect recurring; pass `force_recurring` / `skip_capture`; store token |
-| `includes/class-listener.php` | Possibly handle token-lifecycle webhooks |
+| `includes/class-chip-givewp-api.php` | Add `charge_token`, `list_tokens`, `delete_token` |
+| `includes/class-chip-givewp-purchase.php` | Detect recurring; pass `force_recurring` / `skip_capture`; store token |
+| `includes/class-chip-givewp-listener.php` | Possibly handle token-lifecycle webhooks |
 | `includes/class-chip-givewp-helper.php` | Add recurring-specific logging / meta helpers |
-| `includes/admin/class-refund-button.php` | Add cancel-subscription button |
+| `includes/admin/class-chip-givewp-refund-button.php` | Add cancel-subscription button |
 | **New file** `includes/class-recurring.php` | Core recurring logic: scheduler, renewal processing |
 | **New file** `includes/class-recurring-legacy.php` | Legacy-form recurring gateway adapter |
 | **New file** `includes/block/class-chip-recurring.php` | Block-form recurring gateway adapter (if v3 add-on supports it) |
