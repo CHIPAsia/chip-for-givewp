@@ -113,6 +113,7 @@ jobs:
           rsync -av \
             --exclude='.git*' \
             --exclude='.github' \
+            --exclude='.vscode' \
             --exclude='ci-build' \
             --exclude='dist' \
             --exclude='node_modules' \
