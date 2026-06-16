@@ -145,9 +145,14 @@ jobs:
           # Plugin name "CHIP for GiveWP" and slug "chip-for-givewp"
           # contain "wp" which is already published on WordPress.org
           # and cannot be changed, so trademarked_term is a known false positive.
-          # NonPrefixedHooknameFound fires on GiveWP core hooks
-          # (give_forms_content_options_select, give_before_chip_info_fields, etc.)
-          # that third-party gateways are expected to use.
+          # NonPrefixedHooknameFound is unavoidable for a third-party
+          # GiveWP gateway: we listen to GiveWP's give_* / givewp_* hooks
+          # (add_action/add_filter), and until v2.0.0 we still fire two
+          # legacy give_before_chip_info_fields / give_after_chip_info_fields
+          # hooks kept for backward compatibility. See
+          # includes/class-chip-givewp-purchase.php and
+          # chip-for-givewp.php for the prefixed gwp_chip_* replacements
+          # introduced in 1.4.0.
           # newline-separated per the action's input contract.
           ignore-codes: |
             trademarked_term

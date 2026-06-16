@@ -52,7 +52,13 @@ class Chip_Givewp_Purchase {
 
 		ob_start();
 
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GiveWP core hook for gateway field rendering.
+		// Preferred (prefixed) hook. Use this for new code.
+		do_action( 'gwp_chip_before_info_fields', $form_id );
+
+		// Legacy hook kept for backward compatibility. Deprecated in 1.4.0;
+		// will be removed in 2.0.0. New code should listen to
+		// gwp_chip_before_info_fields instead.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Legacy hook retained for back-compat with < 1.4.0 consumers.
 		do_action( 'give_before_chip_info_fields', $form_id );
 		?>
 		<fieldset class="no-fields" id="give_chip_payment_info">
@@ -60,8 +66,19 @@ class Chip_Givewp_Purchase {
 		</fieldset>
 		<?php
 
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GiveWP core hook for gateway field rendering.
+		// Preferred (prefixed) hook. Use this for new code.
+		do_action( 'gwp_chip_after_info_fields', $form_id );
+
+		// Legacy hook kept for backward compatibility. Deprecated in 1.4.0;
+		// will be removed in 2.0.0. New code should listen to
+		// gwp_chip_after_info_fields instead.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Legacy hook retained for back-compat with < 1.4.0 consumers.
 		do_action( 'give_after_chip_info_fields', $form_id );
+
+		if ( function_exists( '_deprecated_hook' ) ) {
+			_deprecated_hook( 'give_before_chip_info_fields', '1.4.0', 'gwp_chip_before_info_fields' );
+			_deprecated_hook( 'give_after_chip_info_fields', '1.4.0', 'gwp_chip_after_info_fields' );
+		}
 
 		echo wp_kses_post( ob_get_clean() );
 	}
