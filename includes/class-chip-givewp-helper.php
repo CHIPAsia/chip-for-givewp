@@ -57,13 +57,25 @@ class Chip_Givewp_Helper {
 	const DUITNOW_GROUP = array( 'duitnow_qr', 'dnqr' );
 
 	/**
-	 * Resolves the payment method whitelist, handling the DuitNow QR group.
+	 * Shopee Pay group: legacy (razer_shopeepay) and modern (shopee_pay)
+	 * identifiers. Exposed to the merchant as a single group; resolved at
+	 * runtime.
 	 *
-	 * When the configured whitelist contains a DuitNow QR group member, the
-	 * group is expanded, intersected with the merchant's actually-available
-	 * methods (fetched via /payment_methods/, cached in a transient), and
-	 * dnqr is preferred over duitnow_qr when both are available. Non-DuitNow
-	 * whitelists short-circuit and return unchanged (no API call).
+	 * @var array<string>
+	 */
+	const SHOPEE_GROUP = array( 'razer_shopeepay', 'shopee_pay' );
+
+	/**
+	 * Resolves the payment method whitelist, handling the DuitNow QR and
+	 * Shopee Pay groups.
+	 *
+	 * When the configured whitelist contains a member of either group, the
+	 * configured groups are expanded, intersected with the merchant's
+	 * actually-available methods (fetched via a single /payment_methods/
+	 * call, cached in a transient), and the preferred member wins when both
+	 * are available (dnqr over duitnow_qr, shopee_pay over razer_shopeepay).
+	 * Whitelists containing neither group short-circuit and return unchanged
+	 * (no API call).
 	 *
 	 * @param array  $whitelist  Final whitelist (cards already expanded).
 	 * @param string $currency   Currency code (MYR).
@@ -74,15 +86,21 @@ class Chip_Givewp_Helper {
 	 * @return array
 	 */
 	public static function resolve_duitnow_methods( $whitelist, $currency, $amount, $secret_key, $brand_id, $form_id ) {
-		$whitelist        = (array) $whitelist;
-		$has_group_member = count( array_intersect( $whitelist, self::DUITNOW_GROUP ) ) > 0;
+		$whitelist = (array) $whitelist;
 
-		// Short-circuit: non-DuitNow whitelist is returned untouched.
-		if ( ! $has_group_member ) {
+		$groups = array(
+			'dnqr'       => self::DUITNOW_GROUP,
+			'shopee_pay' => self::SHOPEE_GROUP,
+		);
+
+		$all_members = array_values( array_unique( array_merge( ...array_values( $groups ) ) ) );
+
+		// Short-circuit: whitelist containing neither group is returned untouched.
+		if ( 0 === count( array_intersect( $whitelist, $all_members ) ) ) {
 			return $whitelist;
 		}
 
-		$expanded = array_values( array_unique( array_merge( $whitelist, self::DUITNOW_GROUP ) ) );
+		$expanded = array_values( array_unique( array_merge( $whitelist, $all_members ) ) );
 
 		// Cache key: brand + currency + amount-bucket (round to 100-sen steps).
 		$cache_key = 'gwp_chip_pm_' . md5( $brand_id . '|' . $currency . '|' . intval( $amount / 100 ) );
@@ -93,35 +111,45 @@ class Chip_Givewp_Helper {
 			$response = $chip->payment_methods( $currency, '', $amount );
 			if ( ! is_array( $response ) || ! isset( $response['available_payment_methods'] ) ) {
 				// API failed; fallback to the expanded whitelist.
-				self::log( $form_id, LogType::HTTP, sprintf( 'dnqr resolver: API failed, fallback to expanded whitelist=%s', implode( ',', $expanded ) ) );
+				self::log( $form_id, LogType::HTTP, sprintf( 'group resolver: API failed, fallback to expanded whitelist=%s', implode( ',', $expanded ) ) );
 				return $expanded;
 			}
 			$available = $response['available_payment_methods'];
 			set_transient( $cache_key, $available, 30 * MINUTE_IN_SECONDS );
 		}
 
-		// Intersect: keep only group members the merchant actually has.
-		$resolved_group = array_values( array_intersect( self::DUITNOW_GROUP, (array) $available ) );
+		$available = (array) $available;
 
-		// Priority: dnqr wins when both are present.
-		if ( in_array( 'dnqr', $resolved_group, true ) ) {
-			$resolved_group = array_values( array_diff( $resolved_group, array( 'duitnow_qr' ) ) );
+		// Resolve each configured group against the merchant's available methods.
+		$resolved = array();
+		foreach ( $groups as $preferred => $members ) {
+			if ( 0 === count( array_intersect( $whitelist, $members ) ) ) {
+				continue;
+			}
+
+			$resolved_group = array_values( array_intersect( $members, $available ) );
+
+			// Priority: preferred member wins when both are present.
+			if ( in_array( $preferred, $resolved_group, true ) ) {
+				$resolved_group = array( $preferred );
+			}
+
+			$resolved = array_merge( $resolved, $resolved_group );
 		}
 
-		// Build final whitelist: original entries (group members stripped) + resolved group.
-		$final = array_values( array_diff( $expanded, self::DUITNOW_GROUP ) );
-		$final = array_merge( $final, $resolved_group );
+		// Build final whitelist: original entries (group members stripped) + resolved groups.
+		$final = array_values( array_diff( $expanded, $all_members ) );
+		$final = array_merge( $final, $resolved );
 
 		self::log(
 			$form_id,
 			LogType::HTTP,
 			sprintf(
-				'dnqr resolver: configured=%s expanded=%s available=%s sent=%s preferred=%s',
+				'group resolver: configured=%s expanded=%s available=%s sent=%s',
 				implode( ',', $whitelist ),
 				implode( ',', $expanded ),
-				implode( ',', (array) $available ),
-				implode( ',', $final ),
-				$resolved_group[0] ?? '(none)'
+				implode( ',', $available ),
+				implode( ',', $final )
 			)
 		);
 
