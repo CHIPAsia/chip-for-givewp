@@ -143,8 +143,7 @@ abstract class Chip_Givewp_Admin_Settings {
 					'fpx'             => __( 'FPX', 'chip-for-givewp' ),
 					'fpx_b2b1'        => __( 'FPX B2B1', 'chip-for-givewp' ),
 					'crypto_coin'     => __( 'Crypto', 'chip-for-givewp' ),
-					'dnqr'            => __( 'DuitNow QR', 'chip-for-givewp' ),
-					'duitnow_qr'      => __( 'DuitNow QR (Legacy)', 'chip-for-givewp' ),
+					'duitnow_qr'      => __( 'DuitNow QR', 'chip-for-givewp' ),
 					'cards'           => __( 'Cards (Visa, Mastercard, Maestro)', 'chip-for-givewp' ),
 					'mpgs_apple_pay'  => __( 'Apple Pay', 'chip-for-givewp' ),
 					'mpgs_google_pay' => __( 'Google Pay', 'chip-for-givewp' ),
@@ -153,7 +152,6 @@ abstract class Chip_Givewp_Admin_Settings {
 					'razer_maybankqr' => __( 'Maybank QR', 'chip-for-givewp' ),
 					'razer_shopeepay' => __( 'ShopeePay', 'chip-for-givewp' ),
 					'razer_tng'       => __( 'Touch \'n Go', 'chip-for-givewp' ),
-					'shopee_pay'      => __( 'Shopee Pay', 'chip-for-givewp' ),
 				),
 			),
 			array(
