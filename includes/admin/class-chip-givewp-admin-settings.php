@@ -150,7 +150,7 @@ abstract class Chip_Givewp_Admin_Settings {
 					'razer_atome'     => __( 'Atome', 'chip-for-givewp' ),
 					'razer_grabpay'   => __( 'GrabPay', 'chip-for-givewp' ),
 					'razer_maybankqr' => __( 'Maybank QR', 'chip-for-givewp' ),
-					'razer_shopeepay' => __( 'ShopeePay', 'chip-for-givewp' ),
+					'shopee_pay'      => __( 'ShopeePay', 'chip-for-givewp' ),
 					'razer_tng'       => __( 'Touch \'n Go', 'chip-for-givewp' ),
 				),
 			),

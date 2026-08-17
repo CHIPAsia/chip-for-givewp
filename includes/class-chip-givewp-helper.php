@@ -88,6 +88,20 @@ class Chip_Givewp_Helper {
 	public static function resolve_duitnow_methods( $whitelist, $currency, $amount, $secret_key, $brand_id, $form_id ) {
 		$whitelist = (array) $whitelist;
 
+		// In-memory migration: legacy razer_shopeepay -> modern shopee_pay.
+		// Only when shopee_pay is not already present, so a merchant who
+		// configured both keeps a single modern entry.
+		if ( in_array( 'razer_shopeepay', $whitelist, true ) && ! in_array( 'shopee_pay', $whitelist, true ) ) {
+			$whitelist = array_values(
+				array_map(
+					static function ( $method ) {
+						return 'razer_shopeepay' === $method ? 'shopee_pay' : $method;
+					},
+					$whitelist
+				)
+			);
+		}
+
 		$groups = array(
 			'dnqr'       => self::DUITNOW_GROUP,
 			'shopee_pay' => self::SHOPEE_GROUP,
