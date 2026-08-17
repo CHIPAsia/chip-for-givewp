@@ -1,0 +1,32 @@
+name: WordPress Plugin Check (Main)
+
+on:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Prepare plugin folder for CI
+        run: |
+          mkdir -p ci-build/chip-for-givewp
+          git archive HEAD | tar -x -C ci-build/chip-for-givewp
+          cp .wp-env.json ci-build/chip-for-givewp/
+          echo "✅ Plugin folder prepared"
+          ls -la ci-build/chip-for-givewp/
+
+      - name: Run Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './ci-build/chip-for-givewp'
+          exclude-directories: 'vendor,node_modules'
