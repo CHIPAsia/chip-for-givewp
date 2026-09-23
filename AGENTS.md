@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents (Claude Code, opencode, etc.) when working with code in this repository.
 
 ## Project Overview
 
@@ -42,7 +42,6 @@ Both gateways share the same backend logic (API calls, listener, settings) but h
   - `prepare-release.yml` — Manual dispatch (`workflow_dispatch`, input: `version`). Validates the version, generates an AI changelog from the diff since the last tag (uses `AI_API_KEY` / `AI_MODEL` / `AI_API_URL`), runs `scripts/bump-version.sh`, then opens a `release/vX.Y.Z` PR to `main`. Tag creation is still manual after the PR merges.
   - `release-zip.yml` — Fires on `release: created`. Builds a clean `dist/chip-for-givewp/` snapshot and uploads `chip-for-givewp.zip` to the GitHub release as an asset. The WordPress.org deploy workflow is responsible for the trunk/tag push.
   - `deploy.yml` — Fires on `v*.*.*` or `*.*.*` tag push, or manual dispatch with `trunk`/`release` stage. Runs in the `wordpress-org` environment using `SVN_USERNAME` / `SVN_PASSWORD` secrets. For `trunk`, reverts `Stable tag` to whatever is currently live on WordPress.org so the testing build doesn't auto-update users; for `release`, commits to trunk, copies trunk → `tags/X.Y.Z`, and creates/updates the matching GitHub release. Excludes `.git*`, `.github`, `.vscode`, `ci-build`, `dist`, `node_modules`, `.wordpress-org` from the deploy.
-  - `pr-summary.yml` — Fires on PR `opened`/`synchronize`. Generates an AI summary of the PR diff and overwrites the PR description (idempotent — re-runs replace the previous summary).
 
 ### Settings Model
 CHIP settings exist at two levels:

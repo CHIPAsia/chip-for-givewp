@@ -79,12 +79,13 @@ class Chip_Givewp_API {
 	 *
 	 * @param string $currency Currency code.
 	 * @param string $language Language code.
+	 * @param int    $amount   Optional amount in minor units (sen).
 	 * @return array|null
 	 */
-	public function payment_methods( $currency, $language ) {
+	public function payment_methods( $currency, $language, $amount = '' ) {
 		return $this->call(
 			'GET',
-			"/payment_methods/?brand_id={$this->brand_id}&currency={$currency}&language={$language}"
+			"/payment_methods/?brand_id={$this->brand_id}&currency={$currency}&language={$language}&amount={$amount}"
 		);
 	}
 

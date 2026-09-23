@@ -236,7 +236,14 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 					$whitelist[] = $method;
 				}
 			}
-			$params['payment_method_whitelist'] = array_values( array_unique( $whitelist ) );
+			$params['payment_method_whitelist'] = Chip_Givewp_Helper::resolve_duitnow_methods(
+				array_values( array_unique( $whitelist ) ),
+				$currency,
+				(int) round( $donation->amount->getAmount() ),
+				$secret_key,
+				$brand_id,
+				$form_id
+			);
 		}
 
 		// Try and catch response from CHIP.
