@@ -14,7 +14,7 @@ if ( ! defined( 'GWP_CHIP_PLUGIN_PATH' ) ) {
 }
 
 if ( ! defined( 'GWP_CHIP_MODULE_VERSION' ) ) {
-	define( 'GWP_CHIP_MODULE_VERSION', 'v1.4.0' );
+	define( 'GWP_CHIP_MODULE_VERSION', 'v1.4.1' );
 }
 
 $autoload = GWP_CHIP_PLUGIN_PATH . 'vendor/autoload.php';
@@ -113,6 +113,18 @@ function namespace_stub_logtype() {
 				}
 			}'
 		);
+	}
+}
+
+// WordPress is not loaded in the test environment, so absint() - used by the
+// due-timing resolver - must be stubbed for the helper to be loadable.
+if ( ! function_exists( 'absint' ) ) {
+	/**
+	 * @param mixed $value Value to cast.
+	 * @return int
+	 */
+	function absint( $value ) {
+		return abs( (int) $value );
 	}
 }
 

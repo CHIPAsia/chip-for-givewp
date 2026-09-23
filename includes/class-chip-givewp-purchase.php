@@ -253,7 +253,6 @@ class Chip_Givewp_Purchase {
 			'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
 			'reference'        => substr( $donation_id, 0, 128 ),
 			'platform'         => 'givewp',
-			'due'              => time() + ( absint( $due_strict_timing ) * 60 ),
 			'brand_id'         => $brand_id,
 			'client'           => array(
 				'email'     => $payment_data['user_email'],
@@ -272,6 +271,13 @@ class Chip_Givewp_Purchase {
 				),
 			),
 		);
+
+		// Only send `due` when the merchant actually set a timing; an empty
+		// timing means "no due limit" and must not be sent as a past timestamp.
+		$due_timestamp = Chip_Givewp_Helper::resolve_due_timestamp( $due_strict_timing );
+		if ( null !== $due_timestamp ) {
+			$params['due'] = $due_timestamp;
+		}
 
 		if ( give_is_setting_enabled( $billing_fields ) ) {
 			$params['client']['street_address'] = trim( substr( ( $payment_data['post_data']['card_address'] ?? '' ) . ' ' . ( $payment_data['post_data']['card_address_2'] ?? '' ), 0, 128 ) );
@@ -311,7 +317,7 @@ class Chip_Givewp_Purchase {
 		$chip    = Chip_Givewp_API::get_instance( $secret_key, $brand_id );
 		$payment = $chip->create_payment( $params );
 
-		if ( ! array_key_exists( 'id', $payment ) ) {
+		if ( ! is_array( $payment ) || ! array_key_exists( 'id', $payment ) ) {
 			/* translators: CHIP create_payment response */
 			Chip_Givewp_Helper::log( $form_id, LogType::ERROR, sprintf( __( 'Unable to create purchases: %s', 'chip-for-givewp' ), wp_json_encode( $payment ) ) );
 

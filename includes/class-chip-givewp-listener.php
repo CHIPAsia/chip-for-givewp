@@ -245,7 +245,7 @@ class Chip_Givewp_Listener {
 				$payment = $payload;
 			}
 
-			$payment_id = array_key_exists( 'id', $payment ) ? sanitize_key( $payment['id'] ) : '';
+			$payment_id = is_array( $payment ) && array_key_exists( 'id', $payment ) ? sanitize_key( $payment['id'] ) : '';
 
 			Chip_Givewp_Helper::log( $donation_id, LogType::INFO, __( 'Callback message successfully validated', 'chip-for-givewp' ), $payment );
 		} elseif ( $payment_id ) {
@@ -258,6 +258,16 @@ class Chip_Givewp_Listener {
 		} else {
 			Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, __( 'Unexpected response', 'chip-for-givewp' ) );
 			give_die( __( 'Unexpected response', 'chip-for-givewp' ) );
+		}
+
+		// The API client returns null for every failure shape, so a response that
+		// reaches this point is not guaranteed to be an array. Without this guard
+		// the dereferences below read offsets off null, which reports a misleading
+		// "total does not match" instead of the real API failure.
+		if ( ! is_array( $payment ) ) {
+			$message = __( 'Failed to retrieve the payment from CHIP.', 'chip-for-givewp' );
+			Chip_Givewp_Helper::log( $donation_id, LogType::ERROR, $message );
+			give_die( $message, __( 'Failed verification', 'chip-for-givewp' ), 403 );
 		}
 
 		if ( give_get_payment_total( $donation_id ) !== round( $payment['purchase']['total'] / 100, give_get_price_decimals( $donation_id ) ) ) {
