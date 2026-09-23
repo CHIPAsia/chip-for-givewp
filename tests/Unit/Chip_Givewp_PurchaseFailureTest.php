@@ -24,6 +24,7 @@ namespace GiveWPCHIP\Tests\Unit;
 
 use Chip_Givewp_API;
 use Chip_Givewp_Helper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Mock;
 
@@ -55,6 +56,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 * @param mixed $timing Raw timing value.
 	 * @param int   $minutes Expected minutes ahead.
 	 */
+	#[DataProvider( 'configured_timing_provider' )]
 	public function test_resolve_due_timestamp_returns_future_timestamp_for_configured_timing( $timing, int $minutes ): void {
 		$before = time();
 		$due    = Chip_Givewp_Helper::resolve_due_timestamp( $timing );
@@ -71,7 +73,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 *
 	 * @return array<string, array{0: mixed, 1: int}>
 	 */
-	public function configured_timing_provider(): array {
+	public static function configured_timing_provider(): array {
 		return array(
 			'integer 60'         => array( 60, 60 ),
 			'numeric string 60'  => array( '60', 60 ),
@@ -91,6 +93,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 *
 	 * @param mixed $timing Raw timing value meaning "no limit".
 	 */
+	#[DataProvider( 'disabled_timing_provider' )]
 	public function test_resolve_due_timestamp_returns_null_when_timing_is_disabled( $timing ): void {
 		$this->assertNull(
 			Chip_Givewp_Helper::resolve_due_timestamp( $timing ),
@@ -106,7 +109,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 *
 	 * @return array<string, array{0: mixed}>
 	 */
-	public function disabled_timing_provider(): array {
+	public static function disabled_timing_provider(): array {
 		return array(
 			'unsaved option (false)' => array( false ),
 			'cleared field (empty)'  => array( '' ),
@@ -143,6 +146,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 *
 	 * @param mixed $payment Response that is not a usable payment array.
 	 */
+	#[DataProvider( 'unusable_response_provider' )]
 	public function test_get_payment_field_returns_null_for_unusable_response( $payment ): void {
 		$this->assertNull( Chip_Givewp_Helper::get_payment_field( $payment, 'id' ) );
 	}
@@ -152,7 +156,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 *
 	 * @return array<string, array{0: mixed}>
 	 */
-	public function unusable_response_provider(): array {
+	public static function unusable_response_provider(): array {
 		return array(
 			'transport error (null)'      => array( null ),
 			'non 2xx / unparseable (null)' => array( null ),
@@ -183,6 +187,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 * @param int    $status  HTTP status returned by CHIP.
 	 * @param string $body    Response body returned by CHIP.
 	 */
+	#[DataProvider( 'failing_api_response_provider' )]
 	public function test_create_payment_returns_null_on_failing_api_response( int $status, string $body ): void {
 		$this->stub_api_transport( $status, $body );
 
@@ -198,7 +203,7 @@ class Chip_Givewp_PurchaseFailureTest extends TestCase {
 	 *
 	 * @return array<string, array{0: int, 1: string}>
 	 */
-	public function failing_api_response_provider(): array {
+	public static function failing_api_response_provider(): array {
 		return array(
 			'due in the past (400)' => array(
 				400,
