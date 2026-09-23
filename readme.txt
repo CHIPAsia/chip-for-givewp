@@ -3,7 +3,7 @@ Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
 Requires at least: 6.3
 Tested up to: 7.1
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 Requires PHP: 7.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,16 +32,9 @@ This plugin will enable your GiveWP site to be integrated with CHIP as documente
 
 == Changelog ==
 
-= 1.4.0 - 2026-09-23 =
-* Added - DuitNow QR (dnqr) and ShopeePay (shopee_pay) payment method support.
-* Added - Payment method groups: DuitNow QR and ShopeePay are each exposed as a single selectable option and resolved to the identifier your brand actually supports at checkout, preferring the current one (dnqr, shopee_pay).
-* Added - gwp_chip_before_info_fields and gwp_chip_after_info_fields action hooks.
-* Added - Amount-aware payment method lookup, so methods with a minimum amount are no longer hidden.
-* Fixed - ShopeePay selection is stored as shopee_pay, with a saved razer_shopeepay value migrated automatically.
-* Changed - Deprecated give_before_chip_info_fields and give_after_chip_info_fields; use the gwp_chip_ prefixed hooks instead. The legacy hooks still fire and will be removed in 2.0.0.
-* Changed - Tested up to WordPress 7.1.
-* Changed - Developer guidance file renamed from CLAUDE.md to AGENTS.md.
-* Changed - Removed the automatic pull-request summary workflow.
+= 1.4.1 - 2026-09-23 =
+* Fixed - Purchases were rejected by CHIP with "due cannot be in the past" whenever the Timing setting was left empty, so no donation could complete. The due limit is now omitted when it is not configured, matching the WooCommerce gateway.
+* Fixed - A failed CHIP API call during checkout surfaced as a fatal error and a blank page instead of a message the donor could act on. Every API response is now validated before it is read.
 
 [See changelog for all versions](https://github.com/CHIPAsia/chip-for-givewp/releases).
 
