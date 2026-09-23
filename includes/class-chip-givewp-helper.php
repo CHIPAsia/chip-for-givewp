@@ -32,6 +32,59 @@ class Chip_Givewp_Helper {
 	}
 
 	/**
+	 * Returns the `due` timestamp for a purchase, or null when it is disabled.
+	 *
+	 * The merchant disables the due limit by clearing the timing field, which
+	 * stores an empty value. Coercing that empty value with absint() yields 0,
+	 * so `time() + 0` is already in the past by the time CHIP processes the
+	 * request and every purchase is rejected with:
+	 *
+	 *   `due` cannot be in the past! (due_not_greater_than_now)
+	 *
+	 * Returning null lets the caller leave the parameter out entirely, which
+	 * is what "no due limit" means to the API. Mirrors the WooCommerce
+	 * gateway's get_due_timestamp().
+	 *
+	 * @param mixed $due_strict_timing Raw timing value in minutes.
+	 * @return int|null Due timestamp, or null when disabled.
+	 */
+	public static function resolve_due_timestamp( $due_strict_timing ) {
+		if ( '' === $due_strict_timing || null === $due_strict_timing || false === $due_strict_timing ) {
+			return null;
+		}
+
+		$minutes = absint( $due_strict_timing );
+		if ( 0 === $minutes ) {
+			return null;
+		}
+
+		return time() + ( $minutes * 60 );
+	}
+
+	/**
+	 * Returns a purchase field from an API response, or null when unavailable.
+	 *
+	 * Chip_Givewp_API::call() returns null for every failure shape (transport
+	 * error, non-2xx status, unparseable body, error payload), so a response
+	 * that reaches here is not guaranteed to be an array. Callers must never
+	 * dereference it directly: on PHP 8 an array_key_exists() on null raises a
+	 * TypeError, which is not an Exception and therefore escapes the gateway's
+	 * catch (\Exception) handler, turning a failed purchase into an uncaught
+	 * fatal (HTTP 500) instead of a reportable payment error.
+	 *
+	 * @param mixed  $payment API response.
+	 * @param string $key     Key to read.
+	 * @return mixed Field value, or null when the response is unusable.
+	 */
+	public static function get_payment_field( $payment, $key ) {
+		if ( ! is_array( $payment ) ) {
+			return null;
+		}
+
+		return array_key_exists( $key, $payment ) ? $payment[ $key ] : null;
+	}
+
+	/**
 	 * Updates a field value in global or per-form settings.
 	 *
 	 * @param int    $form_id Form ID.

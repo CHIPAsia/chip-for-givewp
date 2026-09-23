@@ -207,7 +207,6 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 			'creator_agent'    => 'GiveWP: ' . GWP_CHIP_MODULE_VERSION,
 			'reference'        => substr( $donation->id, 0, 128 ),
 			'platform'         => 'givewp',
-			'due'              => time() + ( absint( $due_strict_timing ) * 60 ),
 			'brand_id'         => $brand_id,
 			'client'           => array(
 				'email'     => $donation->email,
@@ -226,6 +225,13 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 				),
 			),
 		);
+
+		// Only send `due` when the merchant actually set a timing; an empty
+		// timing means "no due limit" and must not be sent as a past timestamp.
+		$due_timestamp = Chip_Givewp_Helper::resolve_due_timestamp( $due_strict_timing );
+		if ( null !== $due_timestamp ) {
+			$params['due'] = $due_timestamp;
+		}
 
 		if ( is_array( $payment_method_whitelist ) && ! empty( $payment_method_whitelist ) ) {
 			$whitelist = array();
@@ -250,9 +256,12 @@ class ChipGateway extends PaymentGateway implements PaymentGatewayRefundable {
 		try {
 			$payment = $chip->create_payment( $params );
 
-			if ( ! array_key_exists( 'id', $payment ) ) {
+			if ( ! is_array( $payment ) || ! array_key_exists( 'id', $payment ) ) {
+				// Only append response detail when there is a response to show;
+				// wp_json_encode( null ) would render a literal "null" to the donor.
+				$detail = is_array( $payment ) ? wp_json_encode( $payment ) : '';
 				/* translators: Response from CHIP */
-				throw new Exception( sprintf( __( 'CHIP: Something went wrong, please contact the merchant %s', 'chip-for-givewp' ), wp_json_encode( $payment ) ) );
+				throw new Exception( trim( sprintf( __( 'CHIP: Something went wrong, please contact the merchant %s', 'chip-for-givewp' ), $detail ) ) );
 			}
 
 			/* translators: 1: Donation ID */

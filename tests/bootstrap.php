@@ -59,6 +59,16 @@ if ( ! function_exists( 'wp_remote_retrieve_response_code' ) ) {
 	}
 }
 
+if ( ! function_exists( 'absint' ) ) {
+	/**
+	 * @param mixed $value Value to cast.
+	 * @return int
+	 */
+	function absint( $value ) {
+		return abs( (int) $value );
+	}
+}
+
 // Load plugin files
 require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-chip-givewp-api.php';
 require_once GWP_CHIP_PLUGIN_PATH . 'includes/class-chip-givewp-helper.php';
