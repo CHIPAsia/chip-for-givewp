@@ -37,6 +37,12 @@ Both gateways share the same backend logic (API calls, listener, settings) but h
 - **`includes/js/refund.js`** — AJAX handler for the admin refund button.
 - **`.wp-env.json`** — Local WordPress environment config (GiveWP + plugin-check).
 - **`.wordpress-org/`** — WordPress.org plugin directory assets (banners, icons, screenshots).
+- **`.github/workflows/`** — GitHub Actions CI/CD:
+  - `plugin-check.yml` — Runs the WordPress.org plugin check (PHP 8.2 + plugin-check-action@v1.1.7), PHPCS, PHPCompatibility, PHPUnit, and the plugin build. All four test jobs (`php-compatibility`, `phpcs`, `phpunit`, `plugin-check`) gate on the `build` job's artifact. The `plugin-check` job passes `ignore-codes: trademarked_term` and `…NonPrefixedHooknameFound` (both are documented false positives for this plugin — see the comments in that file).
+  - `prepare-release.yml` — Manual dispatch (`workflow_dispatch`, input: `version`). Validates the version, generates an AI changelog from the diff since the last tag (uses `AI_API_KEY` / `AI_MODEL` / `AI_API_URL`), runs `scripts/bump-version.sh`, then opens a `release/vX.Y.Z` PR to `main`. Tag creation is still manual after the PR merges.
+  - `release-zip.yml` — Fires on `release: created`. Builds a clean `dist/chip-for-givewp/` snapshot and uploads `chip-for-givewp.zip` to the GitHub release as an asset. The WordPress.org deploy workflow is responsible for the trunk/tag push.
+  - `deploy.yml` — Fires on `v*.*.*` or `*.*.*` tag push, or manual dispatch with `trunk`/`release` stage. Runs in the `wordpress-org` environment using `SVN_USERNAME` / `SVN_PASSWORD` secrets. For `trunk`, reverts `Stable tag` to whatever is currently live on WordPress.org so the testing build doesn't auto-update users; for `release`, commits to trunk, copies trunk → `tags/X.Y.Z`, and creates/updates the matching GitHub release. Excludes `.git*`, `.github`, `.vscode`, `ci-build`, `dist`, `node_modules`, `.wordpress-org` from the deploy.
+  - `pr-summary.yml` — Fires on PR `opened`/`synchronize`. Generates an AI summary of the PR diff and overwrites the PR description (idempotent — re-runs replace the previous summary).
 
 ### Settings Model
 CHIP settings exist at two levels:
@@ -91,6 +97,8 @@ phpcs --standard=PHPCompatibilityWP --runtime-set testVersion 8.5 --extensions=p
 - To update version: bump in `chip-for-givewp.php` (header + `GWP_CHIP_MODULE_VERSION`), `readme.txt` (`Stable tag`), and `changelog.txt`. Alternatively, use `./scripts/bump-version.sh X.Y.Z`.
 - To update WordPress.org assets: place images in `.wordpress-org/` (banners, icons, screenshots). Deployed to SVN by `deploy.yml`.
 - To run local WordPress environment: `wp-env` reads `.wp-env.json` (GiveWP + plugin-check pre-installed).
+- To add or change CI `ignore-codes` for the WordPress.org plugin check: edit `.github/workflows/plugin-check.yml` (newline-separated list per the action's `action.yml`). Always include a comment explaining why each code is being ignored — the maintainers may ask.
+- To reproduce the CI `plugin-check` job locally: `npx wp-env start && npx wp-env run cli wp plugin activate plugin-check && npx wp-env run cli wp plugin check chip-for-givewp --ignore-codes=trademarked_term,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound`.
 
 ## External Dependencies
 

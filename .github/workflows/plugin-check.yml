@@ -112,7 +112,10 @@ jobs:
         continue-on-error: false
 
   # Tier 3: Plugin Check (needs build artifact)
-  # Manual wp-env approach — upstream plugin-check-action is broken (#579).
+  # Uses wordpress/plugin-check-action@v1.1.7, which fixes the wp-env
+  # "Environment not initialized" bug from upstream issue #579
+  # (closed via PR #590 — drops the URL-plugin bootstrap and installs
+  # plugin-check via WP-CLI after wp-env start with a post-boot check).
 
   plugin-check:
     name: Plugin Check
@@ -129,81 +132,28 @@ jobs:
           name: chip-for-givewp-build
           path: ./build
 
-      # Node 24+ breaks @wordpress/env ("Environment not initialized").
-      # Node 22 is the latest version confirmed working.
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      # Setup PHP so the action can pick it up for wp-env's CLI container.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          node-version: '22'
-
-      - name: Install @wordpress/env
-        run: npm install -g @wordpress/env
-
-      - name: Create wp-env override for CI
-        run: |
-          cat > .wp-env.override.json <<'JSONEOF'
-          {
-            "core": null,
-            "plugins": [
-              "https://downloads.wordpress.org/plugin/give.zip",
-              "https://downloads.wordpress.org/plugin/plugin-check.zip"
-            ],
-            "mappings": {
-              "wp-content/plugins/chip-for-givewp": "./build/chip-for-givewp"
-            }
-          }
-          JSONEOF
-          cat .wp-env.override.json
-
-      - name: Start WordPress environment
-        run: |
-          npx wp-env start --update
-          # Give containers time to stabilize
-          sleep 10
-
-      - name: Activate Plugin Check
-        run: |
-          npx wp-env run cli wp plugin activate plugin-check
+          php-version: '8.2'
 
       - name: Run Plugin Check
-        run: |
-          # Run plugin check and output JSON for parsing.
-          # Ignore trademarked_term: the plugin name "CHIP for GiveWP" and slug "chip-for-givewp"
-          # contain "wp" which is already published on WordPress.org and cannot be changed.
-          # Ignore NonPrefixedHooknameFound: all instances are GiveWP core hooks
-          # (give_forms_content_options_select, give_before_chip_info_fields, etc.)
-          # that third-party gateways are expected to use.
-          # wp-env run cli prepends status text to stdout; filter only JSON lines.
-          # WP CLI may return exit code 1 even with --ignore-codes; use || true and rely on jq parsing.
-          npx wp-env run cli wp plugin check chip-for-givewp \
-            --format=json \
-            --ignore-codes=trademarked_term,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound \
-            2>/dev/null | grep -E '^\[|^\{' > /tmp/plugin-check-results.json || true
-
-          # Display results in a readable table format.
-          npx wp-env run cli wp plugin check chip-for-givewp \
-            --ignore-codes=trademarked_term,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-
-          # Parse JSON to count errors and warnings.
-          ERRORS=$(jq '[.[] | select(.type == "ERROR")] | length' /tmp/plugin-check-results.json)
-          WARNINGS=$(jq '[.[] | select(.type == "WARNING")] | length' /tmp/plugin-check-results.json)
-
-          echo ""
-          echo "═══════════════════════════════════════"
-          echo "  Plugin Check Summary"
-          echo "═══════════════════════════════════════"
-          echo "  Errors:   ${ERRORS}"
-          echo "  Warnings: ${WARNINGS}"
-
-          if [ "${ERRORS}" -gt 0 ] || [ "${WARNINGS}" -gt 0 ]; then
-            echo ""
-            echo "❌ Plugin Check failed with ${ERRORS} error(s) and ${WARNINGS} warning(s)"
-            exit 1
-          fi
-
-          echo ""
-          echo "✅ Plugin Check passed (no errors or warnings)"
-
-      - name: Stop WordPress environment
-        if: always()
-        run: npx wp-env stop
+        uses: wordpress/plugin-check-action@v1.1.7
+        with:
+          build-dir: ./build/chip-for-givewp
+          # Plugin name "CHIP for GiveWP" and slug "chip-for-givewp"
+          # contain "wp" which is already published on WordPress.org
+          # and cannot be changed, so trademarked_term is a known false positive.
+          # NonPrefixedHooknameFound is unavoidable for a third-party
+          # GiveWP gateway: we listen to GiveWP's give_* / givewp_* hooks
+          # (add_action/add_filter), and until v2.0.0 we still fire two
+          # legacy give_before_chip_info_fields / give_after_chip_info_fields
+          # hooks kept for backward compatibility. See
+          # includes/class-chip-givewp-purchase.php and
+          # chip-for-givewp.php for the prefixed gwp_chip_* replacements
+          # introduced in 1.4.0.
+          # newline-separated per the action's input contract.
+          ignore-codes: |
+            trademarked_term
+            WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
