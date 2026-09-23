@@ -97,6 +97,14 @@ class Chip_Givewp {
 	 * Adds WordPress actions.
 	 */
 	public function add_actions() {
+		// Preferred (prefixed) hook. Billing fields render on this hook.
+		add_action( 'gwp_chip_before_info_fields', array( $this, 'billing_fields' ) );
+
+		// Legacy hook — kept registered so any pre-1.4.0 listener still
+		// fires. Our own billing_fields callback detaches itself the
+		// first time the legacy hook runs (see billing_fields() below),
+		// so billing_fields is invoked exactly once per request even
+		// when both hooks fire.
 		add_action( 'give_before_chip_info_fields', array( $this, 'billing_fields' ) );
 	}
 
@@ -156,6 +164,14 @@ class Chip_Givewp {
 	 * @param int $form_id Form ID.
 	 */
 	public function billing_fields( $form_id ) {
+		// If this is being invoked via the legacy give_before_chip_info_fields
+		// hook, detach ourselves from it now that the new prefixed hook
+		// is wired up. We remove only our own callback so any other
+		// listeners on the legacy hook still run.
+		if ( doing_action( 'give_before_chip_info_fields' ) ) {
+			remove_action( 'give_before_chip_info_fields', array( $this, 'billing_fields' ) );
+		}
+
 		$chip_customization = give_get_meta( $form_id, '_give_customize_chip_donations', true, 'global' );
 		$billing_fields     = give_get_meta( $form_id, '_give_chip-enable-billing-fields', true );
 
