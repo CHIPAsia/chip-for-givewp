@@ -62,9 +62,9 @@ The `Chip_Givewp_Helper::get_fields()` / `update_fields()` methods abstract this
 - **No frontend build step**: Edit PHP/JS files directly.
 - **Composer dev dependencies**: `phpunit/phpunit`, `10up/wp_mock`, `yoast/phpunit-polyfills`, `squizlabs/php_codesniffer`, `dealerdirect/phpcodesniffer-composer-installer`, `wp-coding-standards/wpcs`.
 - **Formatting**: VS Code workspace setting uses `"php.format.codeStyle": "WordPress"`. PHPCS is configured for WordPress standards via `phpcs.xml`.
-- **Minimum PHP**: 7.4 (as of v1.3.0).
-- **Minimum WordPress**: 6.3 (as of v1.3.0).
-- **Tested up to**: WordPress 7.0 (as of v1.3.0).
+- **Minimum PHP**: 7.4 (as of v1.3.0; unchanged in v1.4.0).
+- **Minimum WordPress**: 6.3 (as of v1.3.0; unchanged in v1.4.0).
+- **Tested up to**: WordPress 7.1 (as of v1.4.0).
 
 ## Common Commands
 

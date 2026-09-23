@@ -2,8 +2,8 @@
 Contributors: chipasia, wanzulnet, awisqirani
 Tags: chip
 Requires at least: 6.3
-Tested up to: 7.0
-Stable tag: 1.3.0
+Tested up to: 7.1
+Stable tag: 1.4.0
 Requires PHP: 7.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,24 +32,16 @@ This plugin will enable your GiveWP site to be integrated with CHIP as documente
 
 == Changelog ==
 
-= 1.3.0 - 2026-06-02 =
-* Added - Payment method whitelist setting to restrict available CHIP checkout methods.
-* Added - Success URL and Cancel URL redirect configuration.
-* Added - Cancel redirect parameter for CHIP purchase creation.
-* Fixed - API singleton now returns a new instance to prevent credential caching across forms.
-* Fixed - Refund button now appears for GiveWP 3.0 Visual Form Builder (chip_block) donations.
-* Fixed - Corrected refund guard meta key lookup.
-* Fixed - Street address concatenation precedence issue with null coalescing.
-* Fixed - Timezone regex to use proper A-Za-z character class.
-* Fixed - wp_json_encode parameter misuse.
-* Changed - Requires PHP bumped to 7.4.
-* Changed - Tested up to WordPress 7.0.
-* Changed - Added ABSPATH guards to all PHP files.
-* Changed - Replaced sizeof() with count().
-* Changed - Block gateway now explicitly implements PaymentGatewayRefundable interface.
-* Changed - Updated getLegacyFormFieldMarkup signature for GiveWP 4.x compatibility.
-* Changed - Settings reorganized into sections: Credentials, Display, Timing, Redirects, and Payment Methods.
-* Changed - Requires at least WordPress bumped to 6.3.
+= 1.4.0 - 2026-09-23 =
+* Added - DuitNow QR (dnqr) and ShopeePay (shopee_pay) payment method support.
+* Added - Payment method groups: DuitNow QR and ShopeePay are each exposed as a single selectable option and resolved to the identifier your brand actually supports at checkout, preferring the current one (dnqr, shopee_pay).
+* Added - gwp_chip_before_info_fields and gwp_chip_after_info_fields action hooks.
+* Added - Amount-aware payment method lookup, so methods with a minimum amount are no longer hidden.
+* Fixed - ShopeePay selection is stored as shopee_pay, with a saved razer_shopeepay value migrated automatically.
+* Changed - Deprecated give_before_chip_info_fields and give_after_chip_info_fields; use the gwp_chip_ prefixed hooks instead. The legacy hooks still fire and will be removed in 2.0.0.
+* Changed - Tested up to WordPress 7.1.
+* Changed - Developer guidance file renamed from CLAUDE.md to AGENTS.md.
+* Changed - Removed the automatic pull-request summary workflow.
 
 [See changelog for all versions](https://github.com/CHIPAsia/chip-for-givewp/releases).
 
